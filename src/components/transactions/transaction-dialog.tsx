@@ -85,11 +85,12 @@ export function TransactionDialog({
 
   useEffect(() => {
     if (!open || !currentWorkspaceId) return;
+    const activeWorkspaceId = currentWorkspaceId;
     async function loadData() {
       const supabase = createClient();
       const [{ data: accData }, { data: catData }] = await Promise.all([
-        supabase.from("accounts").select("*").eq("workspace_id", currentWorkspaceId),
-        supabase.from("categories").select("*").eq("workspace_id", currentWorkspaceId),
+        supabase.from("accounts").select("*").eq("workspace_id", activeWorkspaceId),
+        supabase.from("categories").select("*").eq("workspace_id", activeWorkspaceId),
       ]);
       setAccounts((accData as Account[]) ?? []);
       setCategories((catData as Category[]) ?? []);

@@ -2,6 +2,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useWorkspaceStore } from "@/stores/workspace-store";
+import type { Database } from "@/types/database";
+
+type WorkspaceScopedTable = Exclude<keyof Database["public"]["Tables"], "workspaces">;
 
 interface UseWorkspaceTableOptions {
   select?: string;
@@ -9,7 +12,7 @@ interface UseWorkspaceTableOptions {
 }
 
 export function useWorkspaceTable<T = Record<string, unknown>>(
-  table: string,
+  table: WorkspaceScopedTable,
   options: UseWorkspaceTableOptions = {}
 ) {
   const workspaceId = useWorkspaceStore((s) => s.currentWorkspaceId);

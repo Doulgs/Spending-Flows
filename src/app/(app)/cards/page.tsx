@@ -45,6 +45,7 @@ export default function CardsPage() {
       setUsageByCard({});
       return;
     }
+    const activeWorkspaceId = workspaceId;
     let cancelled = false;
     async function loadUsage() {
       try {
@@ -53,7 +54,7 @@ export default function CardsPage() {
         const { data, error: txError } = await supabase
           .from("transactions")
           .select("*")
-          .eq("workspace_id", workspaceId)
+          .eq("workspace_id", activeWorkspaceId)
           .eq("type", "expense")
           .in("card_id", cardIds);
         if (txError) throw txError;
