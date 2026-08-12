@@ -23,6 +23,9 @@ as $$
   );
 $$;
 
+revoke all on function public.is_workspace_member(uuid) from public, anon;
+grant execute on function public.is_workspace_member(uuid) to authenticated, service_role;
+
 -- Workspaces: owner or member can select; only owner can insert/update/delete
 create policy "Workspaces are viewable by members" on public.workspaces
   for select using (owner_id = auth.uid() or public.is_workspace_member(id));
