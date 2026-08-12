@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 246.3 90.5% 4.1%;
+    --background-secondary: 248.3 74.4% 7.6%;
+    --surface: 249.1 57.9% 11.2%;
+    --surface-elevated: 250.2 50.6% 15.9%;
+    --border: 253.0 47.6% 24.7%;
+    --border-strong: 253.8 45.7% 31.8%;
+    --primary: 258.6 92.8% 72.7%;
+    --primary-hover: 260.2 93.5% 75.7%;
+    --primary-active: 256.4 84.2% 67.6%;
+    --text-primary: 264.0 83.3% 92.9%;
+    --text-secondary: 260.7 84.6% 87.3%;
+    --text-muted: 263.8 32.9% 68.4%;
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    --destructive: 0 72% 51%;
+    --radius: 0.65rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-text-primary antialiased;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border-strong));
+    border-radius: 999px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+}
