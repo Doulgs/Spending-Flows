@@ -40,8 +40,19 @@ create policy "Workspaces are deletable by owner" on public.workspaces
 create policy "Members are viewable by workspace members" on public.workspace_members
   for select using (public.is_workspace_member(workspace_id) or user_id = auth.uid());
 
-create policy "Members are insertable by workspace members" on public.workspace_members
-  for insert with check (public.is_workspace_member(workspace_id) or user_id = auth.uid());
+create policy "Members are insertable by workspace owner or admins" on public.workspace_members
+  for insert with check (
+    exists (
+      select 1 from public.workspaces w
+      where w.id = workspace_id and w.owner_id = auth.uid()
+    )
+    or exists (
+      select 1 from public.workspace_members wm
+      where wm.workspace_id = workspace_id
+        and wm.user_id = auth.uid()
+        and wm.role in ('owner', 'admin')
+    )
+  );
 
 create policy "Members are deletable by workspace members" on public.workspace_members
   for delete using (public.is_workspace_member(workspace_id));
