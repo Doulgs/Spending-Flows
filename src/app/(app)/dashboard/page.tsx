@@ -1,5 +1,6 @@
 "use client";
 import { useMemo } from "react";
+import Link from "next/link";
 import { ArrowDownRight, ArrowUpRight, Scale, Wallet, ArrowRight } from "lucide-react";
 import { format, parseISO, startOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -124,9 +125,9 @@ export default function DashboardPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle>Transações Recentes</CardTitle>
-              <span className="flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer">
+              <Link href="/transactions" className="flex items-center gap-1 text-xs text-primary hover:underline">
                 Ver todas <ArrowRight className="h-3 w-3" />
-              </span>
+              </Link>
             </div>
           </CardHeader>
           <CardContent className="p-0">

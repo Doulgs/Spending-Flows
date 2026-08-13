@@ -24,7 +24,6 @@ export function Header({ title }: { title: string }) {
         <div className="hidden items-center gap-2 rounded-xl border border-border/60 bg-surface/60 px-3 py-2 text-sm text-text-muted md:flex">
           <Search className="h-4 w-4" />
           <span className="text-xs">Buscar...</span>
-          <kbd className="ml-4 hidden rounded border border-border/80 bg-surface-elevated px-1.5 py-0.5 text-[10px] text-text-muted lg:inline-block">⌘K</kbd>
         </div>
 
         <DropdownMenu>
