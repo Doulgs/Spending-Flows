@@ -32,7 +32,7 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       {error && (
-        <div className="rounded-md border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
+        <div className="rounded-md border border-warning-border bg-warning-subtle p-4 text-sm text-warning">
           Não foi possível carregar os relatórios ({error}).
         </div>
       )}

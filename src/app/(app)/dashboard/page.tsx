@@ -87,13 +87,13 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {error && (
-        <div className="rounded-2xl border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
+        <div className="rounded-2xl border border-warning-border bg-warning-subtle p-4 text-sm text-warning">
           Não foi possível carregar dados do Supabase ({error}). Verifique se as credenciais foram configuradas.
         </div>
       )}
 
       {/* Overview header */}
-      <div className="rounded-2xl border border-border/50 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-5">
+      <div className="rounded-2xl border border-border-subtle bg-gradient-to-r from-primary-subtle via-primary-subtle to-transparent p-5">
         <p className="text-xs font-semibold uppercase tracking-widest text-text-muted">Visão Geral</p>
         <p className="mt-1 text-2xl font-bold text-text-primary">
           {format(new Date(), "MMMM 'de' yyyy", { locale: ptBR }).replace(/^\w/, (c) => c.toUpperCase())}
@@ -138,10 +138,10 @@ export default function DashboardPage() {
                 {recentTransactions.map((t, idx) => (
                   <li
                     key={t.id}
-                    className={`flex items-center justify-between px-6 py-3 transition-colors hover:bg-surface-elevated/30 ${idx !== recentTransactions.length - 1 ? "border-b border-border/40" : ""}`}
+                    className={`flex items-center justify-between px-6 py-3 transition-colors hover:bg-surface-hover ${idx !== recentTransactions.length - 1 ? "border-b border-border-subtle" : ""}`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-bold ${t.type === "income" ? "bg-success/15 text-success" : t.type === "expense" ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"}`}>
+                      <div className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-bold ${t.type === "income" ? "bg-success-subtle text-success" : t.type === "expense" ? "bg-destructive-subtle text-destructive" : "bg-primary-subtle text-primary"}`}>
                         {t.type === "income" ? "+" : t.type === "expense" ? "−" : "⇄"}
                       </div>
                       <div>
@@ -176,10 +176,10 @@ export default function DashboardPage() {
                 {accounts.map((a, idx) => (
                   <li
                     key={a.id}
-                    className={`flex items-center justify-between px-6 py-3.5 transition-colors hover:bg-surface-elevated/30 ${idx !== accounts.length - 1 ? "border-b border-border/40" : ""}`}
+                    className={`flex items-center justify-between px-6 py-3.5 transition-colors hover:bg-surface-hover ${idx !== accounts.length - 1 ? "border-b border-border-subtle" : ""}`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/15 text-xs font-bold text-primary">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-subtle text-xs font-bold text-primary">
                         {a.name.charAt(0).toUpperCase()}
                       </div>
                       <p className="text-sm font-medium text-text-primary">{a.name}</p>

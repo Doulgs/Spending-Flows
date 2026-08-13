@@ -117,7 +117,7 @@ export default function ChannelsPage() {
       </div>
 
       {error && (
-        <div className="rounded-md border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
+        <div className="rounded-md border border-warning-border bg-warning-subtle p-4 text-sm text-warning">
           Não foi possível carregar os canais ({error}).
         </div>
       )}
@@ -136,7 +136,7 @@ export default function ChannelsPage() {
               return (
                 <div key={c.id} className="flex items-center justify-between rounded-md border border-border px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-subtle text-primary">
                       <Icon className="h-4 w-4" />
                     </span>
                     <div>
@@ -147,7 +147,7 @@ export default function ChannelsPage() {
                   <div className="flex items-center gap-3">
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs ${
-                        c.verified ? "bg-success/15 text-success" : "bg-warning/15 text-warning"
+                        c.verified ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning"
                       }`}
                     >
                       {c.verified ? "Verificado" : "Pendente"}

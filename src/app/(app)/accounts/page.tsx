@@ -63,7 +63,7 @@ export default function AccountsPage() {
       </div>
 
       {error && (
-        <div className="rounded-md border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
+        <div className="rounded-md border border-warning-border bg-warning-subtle p-4 text-sm text-warning">
           Não foi possível carregar as contas ({error}).
         </div>
       )}
@@ -89,7 +89,7 @@ export default function AccountsPage() {
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-subtle text-primary">
                         <Icon className="h-5 w-5" />
                       </div>
                       <div>

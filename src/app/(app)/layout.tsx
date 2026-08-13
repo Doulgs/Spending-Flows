@@ -4,21 +4,8 @@ import { Header } from "@/components/layout/header";
 import { TransactionDialog } from "@/components/transactions/transaction-dialog";
 import { useUIStore } from "@/stores/ui-store";
 import { usePathname } from "next/navigation";
-
-const TITLES: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/calendar": "Calendário",
-  "/transactions": "Transações",
-  "/accounts": "Contas",
-  "/cards": "Cartões",
-  "/categories": "Categorias",
-  "/recurrences": "Recorrências",
-  "/subscriptions": "Assinaturas",
-  "/cash-flow": "Fluxo de Caixa",
-  "/reports": "Relatórios",
-  "/channels": "Canais",
-  "/settings": "Configurações",
-};
+import { getPageTitle } from "@/components/layout/navigation";
+import { WorkspaceThemeSync } from "@/components/layout/workspace-theme-sync";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -26,14 +13,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const quickAddType = useUIStore((s) => s.quickAddType);
   const closeQuickAdd = useUIStore((s) => s.closeQuickAdd);
 
-  const title = TITLES[pathname ?? ""] ?? "Spending Flows";
+  const title = getPageTitle(pathname);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-screen overflow-hidden bg-background">
+      <WorkspaceThemeSync />
       <Sidebar />
-      <div className="flex min-h-screen flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Header title={title} />
-        <main className="scrollbar-thin flex-1 overflow-y-auto p-6 lg:p-7">{children}</main>
+        <main className="scrollbar-thin flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7">{children}</main>
       </div>
       <TransactionDialog
         open={isQuickAddOpen}

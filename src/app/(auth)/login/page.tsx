@@ -1,95 +1,36 @@
 "use client";
+
 import { useState } from "react";
-import { Wallet, Loader2, AlertTriangle } from "lucide-react";
+import Image from "next/image";
+import { AlertTriangle, ArrowRight, BarChart3, Loader2, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { signInWithGoogle } from "@/features/auth/actions";
 
-const isSupabaseConfigured =
-  !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
-  !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
+const isSupabaseConfigured = !!process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const handleGoogleLogin = async () => { setError(null); setLoading(true); try { await signInWithGoogle(); } catch (err) { setError(err instanceof Error ? err.message : "Não foi possível iniciar o login."); setLoading(false); } };
 
-  const handleGoogleLogin = async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      await signInWithGoogle();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível iniciar o login.");
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,_hsl(var(--primary)/0.18),_transparent_55%)]" />
-      <Card className="relative z-10 w-full max-w-md border-border bg-surface/90 backdrop-blur">
-        <CardHeader className="items-center text-center">
-          <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary">
-            <Wallet className="h-6 w-6" />
-          </div>
-          <CardTitle className="text-2xl">Spending Flows</CardTitle>
-          <CardDescription>Gerencie suas finanças pessoais e do seu negócio em um só lugar.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {!isSupabaseConfigured && (
-            <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>
-                Supabase ainda não está configurado. Defina as variáveis de ambiente
-                <code className="mx-1 rounded bg-surface-elevated px-1">NEXT_PUBLIC_SUPABASE_URL</code>
-                e
-                <code className="mx-1 rounded bg-surface-elevated px-1">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>
-                para habilitar a autenticação.
-              </span>
-            </div>
-          )}
-          {error && (
-            <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-              {error}
-            </div>
-          )}
-          <Button
-            className="w-full"
-            size="lg"
-            disabled={loading || !isSupabaseConfigured}
-            onClick={handleGoogleLogin}
-          >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
-            Entrar com Google
-          </Button>
-          <p className="text-center text-xs text-text-muted">
-            Ao continuar, você concorda com nossos Termos de Uso e Política de Privacidade.
-          </p>
-        </CardContent>
-      </Card>
+  return <main className="relative min-h-screen overflow-hidden bg-background-secondary p-3 sm:p-5">
+    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,hsl(var(--primary-subtle)),transparent_35%)]" />
+    <div className="relative mx-auto grid min-h-[calc(100vh-24px)] max-w-[1500px] overflow-hidden rounded-[28px] border border-border-subtle bg-background shadow-2xl shadow-black/40 sm:min-h-[calc(100vh-40px)] lg:grid-cols-[1.08fr_0.92fr]">
+      <section className="relative hidden min-h-full overflow-hidden border-r border-border-subtle bg-[#0d0e13] p-12 lg:flex lg:flex-col lg:justify-between xl:p-16">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(139,92,246,0.22),transparent_42%)]" />
+        <div className="relative z-10 flex items-center gap-3"><Image src="/favicon/apple-touch-icon.png" width={48} height={48} alt="" className="rounded-2xl" priority /><div><p className="text-lg font-bold">Spending Flows</p><p className="text-xs uppercase tracking-[0.2em] text-text-muted">Finance OS</p></div></div>
+        <div className="relative z-10 mx-auto w-full max-w-xl text-center"><Image src="/spending-flow-icon.png" width={420} height={420} alt="Rede de fluxos financeiros" className="mx-auto h-auto w-[min(58vh,420px)] rounded-[30%] object-cover shadow-[0_30px_100px_rgba(139,92,246,0.2)]" priority /><h1 className="mt-8 text-4xl font-bold tracking-[-0.04em] xl:text-5xl">Clareza para cada movimento do seu dinheiro.</h1><p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-text-secondary">Organize contas, acompanhe seu fluxo e tome decisões com uma visão financeira única.</p></div>
+        <div className="relative z-10 flex items-center justify-center gap-6 text-xs text-text-muted"><span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary" /> Dados protegidos</span><span className="flex items-center gap-2"><BarChart3 className="h-4 w-4 text-primary" /> Visão completa</span></div>
+      </section>
+      <section className="flex items-center justify-center px-6 py-12 sm:px-12 lg:px-16"><div className="w-full max-w-md">
+        <div className="mb-10 flex items-center gap-3 lg:hidden"><Image src="/favicon/apple-touch-icon.png" width={44} height={44} alt="" className="rounded-xl" priority /><div><p className="font-bold">Spending Flows</p><p className="text-xs text-text-muted">Gestão financeira inteligente</p></div></div>
+        <div className="mb-8 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-subtle text-primary"><Sparkles className="h-5 w-5" /></div><p className="text-sm font-semibold text-primary">Bem-vindo de volta</p><h2 className="mt-3 text-3xl font-bold tracking-[-0.04em] sm:text-4xl">Entre na sua conta</h2><p className="mt-3 text-sm leading-relaxed text-text-secondary">Acesse seus workspaces e continue de onde parou.</p>
+        <div className="mt-9 space-y-4">{!isSupabaseConfigured && <div className="flex items-start gap-3 rounded-xl border border-warning-border bg-warning-subtle p-4 text-sm text-warning"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" /><span>Supabase ainda não está configurado. Adicione as variáveis públicas para habilitar o login.</span></div>}{error && <div className="rounded-xl border border-destructive-border bg-destructive-subtle p-4 text-sm text-destructive">{error}</div>}
+          <Button className="h-12 w-full justify-between px-4" disabled={loading || !isSupabaseConfigured} onClick={handleGoogleLogin}><span className="flex items-center gap-3">{loading ? <Loader2 className="animate-spin" /> : <GoogleIcon />}Continuar com Google</span><ArrowRight className="h-4 w-4" /></Button>
+        </div><p className="mt-6 text-center text-xs leading-relaxed text-text-muted">Ao continuar, você concorda com nossos Termos de Uso e Política de Privacidade.</p>
+      </div></section>
     </div>
-  );
+  </main>;
 }
 
-function GoogleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4">
-      <path
-        fill="#4285F4"
-        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-      />
-    </svg>
-  );
-}
+function GoogleIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4"><path fill="#fff" d="M21.6 12.23c0-.71-.06-1.4-.18-2.05H12v3.87h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.24c1.9-1.74 2.98-4.31 2.98-7.35Z"/><path fill="#fff" d="M12 22c2.7 0 4.96-.9 6.62-2.42l-3.24-2.51c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.76-5.59-4.12H3.07v2.59A10 10 0 0 0 12 22Z" opacity=".9"/><path fill="#fff" d="M6.41 13.91A6.02 6.02 0 0 1 6.1 12c0-.66.11-1.3.31-1.91V7.5H3.07A10 10 0 0 0 2 12c0 1.61.39 3.14 1.07 4.5l3.34-2.59Z" opacity=".75"/><path fill="#fff" d="M12 5.97c1.47 0 2.78.5 3.82 1.49l2.87-2.87A9.62 9.62 0 0 0 12 2a10 10 0 0 0-8.93 5.5l3.34 2.59A5.98 5.98 0 0 1 12 5.97Z" opacity=".6"/></svg>; }

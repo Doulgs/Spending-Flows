@@ -16,8 +16,8 @@ export function WorkspaceSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex w-full items-center gap-2.5 rounded-xl border border-border/50 bg-surface/60 px-3 py-2.5 text-left text-sm hover:border-border hover:bg-surface transition-all">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/25 to-primary/10 text-primary ring-1 ring-primary/15">
+        <button className="flex w-full items-center gap-2.5 rounded-xl border border-border-subtle bg-surface px-3 py-2.5 text-left text-sm transition-all hover:border-border hover:bg-surface-elevated">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-subtle text-primary ring-1 ring-primary-border">
             <Building2 className="h-3.5 w-3.5" />
           </div>
           <div className="min-w-0 flex-1">
@@ -25,7 +25,7 @@ export function WorkspaceSwitcher() {
               {loading ? "Carregando..." : currentWorkspace?.name ?? "Sem workspace"}
             </p>
             <p className="truncate text-[10px] text-text-muted">
-              {currentWorkspace?.currency ?? "—"}
+              {currentWorkspace?.type === "business" ? "Negócio" : currentWorkspace?.type === "family" ? "Família" : "Pessoal"}
             </p>
           </div>
           <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-text-muted" />

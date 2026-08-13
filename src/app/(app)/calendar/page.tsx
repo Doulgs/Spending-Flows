@@ -53,7 +53,7 @@ export default function CalendarPage() {
       </div>
 
       {error && (
-        <div className="rounded-md border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
+        <div className="rounded-md border border-warning-border bg-warning-subtle p-4 text-sm text-warning">
           Não foi possível carregar eventos financeiros ({error}).
         </div>
       )}
@@ -90,7 +90,7 @@ export default function CalendarPage() {
                           key={t.id}
                           className={cn(
                             "truncate rounded px-1.5 py-0.5 text-[11px]",
-                            t.type === "income" ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"
+                            t.type === "income" ? "bg-success-subtle text-success" : "bg-destructive-subtle text-destructive"
                           )}
                         >
                           {t.description} · {formatCurrency(Number(t.amount))}

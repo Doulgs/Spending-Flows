@@ -491,6 +491,7 @@ export type Database = {
       }
       workspaces: {
         Row: {
+          accent_color: string
           created_at: string
           currency: string
           id: string
@@ -499,6 +500,7 @@ export type Database = {
           type: string
         }
         Insert: {
+          accent_color?: string
           created_at?: string
           currency?: string
           id?: string
@@ -507,6 +509,7 @@ export type Database = {
           type?: string
         }
         Update: {
+          accent_color?: string
           created_at?: string
           currency?: string
           id?: string

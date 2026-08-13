@@ -26,7 +26,7 @@ export function useWorkspaces() {
         }
         const { data, error: fetchError } = await supabase
           .from("workspaces")
-          .select("id, name, type, currency")
+          .select("id, owner_id, name, type, currency, accent_color")
           .order("created_at", { ascending: true });
         if (fetchError) throw fetchError;
         if (active) {

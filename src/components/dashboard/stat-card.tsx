@@ -14,15 +14,9 @@ interface StatCardProps {
 
 export function StatCard({ label, value, icon: Icon, trend, trendPositive, accent = "primary" }: StatCardProps) {
   const iconBg = {
-    primary: "from-primary/25 to-primary/10 text-primary ring-primary/15",
-    success: "from-success/25 to-success/10 text-success ring-success/15",
-    destructive: "from-destructive/25 to-destructive/10 text-destructive ring-destructive/15",
-  } as const;
-
-  const trendBg = {
-    primary: "bg-primary/10 text-primary",
-    success: "bg-success/10 text-success",
-    destructive: "bg-destructive/10 text-destructive",
+    primary: "from-primary-soft to-primary-subtle text-primary ring-primary-border",
+    success: "from-success-soft to-success-subtle text-success ring-success-border",
+    destructive: "from-destructive-soft to-destructive-subtle text-destructive ring-destructive-border",
   } as const;
 
   return (
@@ -33,7 +27,7 @@ export function StatCard({ label, value, icon: Icon, trend, trendPositive, accen
             <p className="text-xs font-medium uppercase tracking-wider text-text-muted">{label}</p>
             <p className="mt-2 text-2xl font-bold text-text-primary tabular-nums">{value}</p>
             {trend && (
-              <div className={cn("mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium", trendPositive ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive")}>
+              <div className={cn("mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium", trendPositive ? "bg-success-subtle text-success" : "bg-destructive-subtle text-destructive")}>
                 {trendPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                 {trend}
               </div>
@@ -42,7 +36,7 @@ export function StatCard({ label, value, icon: Icon, trend, trendPositive, accen
           <div className={cn(
             "flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ring-1 shadow-lg",
             iconBg[accent],
-            accent === "primary" ? "shadow-primary/10" : accent === "success" ? "shadow-success/10" : "shadow-destructive/10"
+            accent === "primary" ? "shadow-primary-border" : accent === "success" ? "shadow-success-border" : "shadow-destructive-border"
           )}>
             <Icon className="h-5 w-5" />
           </div>

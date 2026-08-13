@@ -110,7 +110,7 @@ export default function TransactionsPage() {
       </div>
 
       {error && (
-        <div className="rounded-md border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
+        <div className="rounded-md border border-warning-border bg-warning-subtle p-4 text-sm text-warning">
           Não foi possível carregar as transações ({error}).
         </div>
       )}
@@ -128,7 +128,7 @@ export default function TransactionsPage() {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border/50 text-left">
+                <tr className="border-b border-border-subtle text-left">
                   <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-muted">Descrição</th>
                   <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-muted">Categoria</th>
                   <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-muted">Conta</th>
@@ -140,10 +140,10 @@ export default function TransactionsPage() {
               </thead>
               <tbody>
                 {filtered.map((t) => (
-                  <tr key={t.id} className="border-b border-border/30 last:border-0 transition-colors hover:bg-surface-elevated/30">
+                  <tr key={t.id} className="border-b border-border-subtle last:border-0 transition-colors hover:bg-surface-hover">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${t.type === "income" ? "bg-success/15 text-success" : t.type === "expense" ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"}`}>
+                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${t.type === "income" ? "bg-success-subtle text-success" : t.type === "expense" ? "bg-destructive-subtle text-destructive" : "bg-primary-subtle text-primary"}`}>
                           {t.type === "income" ? "+" : t.type === "expense" ? "−" : "⇄"}
                         </div>
                         <span className="font-medium text-text-primary">{t.description}</span>
