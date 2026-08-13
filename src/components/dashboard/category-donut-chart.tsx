@@ -14,8 +14,8 @@ export function CategoryDonutChart({ data }: { data: CategorySlice[] }) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Despesas por Categoria</CardTitle>
+      <CardHeader className="pb-2">
+        <CardTitle>Por Categoria</CardTitle>
       </CardHeader>
       <CardContent>
         {total === 0 ? (
@@ -23,17 +23,18 @@ export function CategoryDonutChart({ data }: { data: CategorySlice[] }) {
             Nenhuma despesa categorizada ainda.
           </div>
         ) : (
-          <div className="flex items-center gap-6">
-            <div className="h-56 w-56 shrink-0">
+          <div className="flex flex-col gap-4">
+            <div className="relative mx-auto h-48 w-48">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={data}
                     dataKey="value"
                     nameKey="name"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={2}
+                    innerRadius={56}
+                    outerRadius={80}
+                    paddingAngle={3}
+                    strokeWidth={0}
                   >
                     {data.map((entry, index) => (
                       <Cell key={index} fill={entry.color} />
@@ -43,22 +44,28 @@ export function CategoryDonutChart({ data }: { data: CategorySlice[] }) {
                     contentStyle={{
                       background: "hsl(var(--surface-elevated))",
                       border: "1px solid hsl(var(--border))",
-                      borderRadius: 8,
+                      borderRadius: 12,
                       color: "hsl(var(--text-primary))",
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+                      fontSize: 12,
                     }}
                     formatter={(value) => formatCurrency(Number(value ?? 0))}
                   />
                 </PieChart>
               </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xs text-text-muted">Total</span>
+                <span className="text-sm font-bold text-text-primary">{formatCurrency(total)}</span>
+              </div>
             </div>
-            <ul className="flex-1 space-y-2">
-              {data.slice(0, 6).map((d) => (
-                <li key={d.name} className="flex items-center justify-between text-sm">
+            <ul className="space-y-2">
+              {data.slice(0, 5).map((d) => (
+                <li key={d.name} className="flex items-center justify-between text-xs">
                   <span className="flex items-center gap-2 text-text-secondary">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: d.color }} />
-                    {d.name}
+                    <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
+                    <span className="truncate max-w-[120px]">{d.name}</span>
                   </span>
-                  <span className="font-medium text-text-primary">{formatCurrency(d.value)}</span>
+                  <span className="font-semibold text-text-primary tabular-nums">{formatCurrency(d.value)}</span>
                 </li>
               ))}
             </ul>

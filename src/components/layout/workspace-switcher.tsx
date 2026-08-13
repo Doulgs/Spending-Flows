@@ -16,19 +16,19 @@ export function WorkspaceSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex w-full items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-left text-sm hover:border-border-strong">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/15 text-primary">
-            <Building2 className="h-4 w-4" />
+        <button className="flex w-full items-center gap-2.5 rounded-xl border border-border/50 bg-surface/60 px-3 py-2.5 text-left text-sm hover:border-border hover:bg-surface transition-all">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/25 to-primary/10 text-primary ring-1 ring-primary/15">
+            <Building2 className="h-3.5 w-3.5" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-medium text-text-primary">
+            <p className="truncate text-xs font-semibold text-text-primary">
               {loading ? "Carregando..." : currentWorkspace?.name ?? "Sem workspace"}
             </p>
-            <p className="truncate text-xs text-text-muted">
+            <p className="truncate text-[10px] text-text-muted">
               {currentWorkspace?.currency ?? "—"}
             </p>
           </div>
-          <ChevronsUpDown className="h-4 w-4 shrink-0 text-text-muted" />
+          <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-text-muted" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="start">

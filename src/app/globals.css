@@ -4,22 +4,25 @@
 
 @layer base {
   :root {
-    --background: 246.3 90.5% 4.1%;
-    --background-secondary: 248.3 74.4% 7.6%;
-    --surface: 249.1 57.9% 11.2%;
-    --surface-elevated: 250.2 50.6% 15.9%;
-    --border: 253.0 47.6% 24.7%;
-    --border-strong: 253.8 45.7% 31.8%;
-    --primary: 258.6 92.8% 72.7%;
-    --primary-hover: 260.2 93.5% 75.7%;
-    --primary-active: 256.4 84.2% 67.6%;
-    --text-primary: 264.0 83.3% 92.9%;
-    --text-secondary: 260.7 84.6% 87.3%;
-    --text-muted: 263.8 32.9% 68.4%;
-    --success: 142 71% 45%;
+    --background: 242 47% 5%;
+    --background-secondary: 244 44% 7.5%;
+    --surface: 246 40% 10.5%;
+    --surface-elevated: 248 36% 15%;
+    --border: 252 38% 22%;
+    --border-strong: 254 36% 30%;
+    --primary: 258 90% 70%;
+    --primary-hover: 260 92% 74%;
+    --primary-active: 256 82% 64%;
+    --text-primary: 264 80% 94%;
+    --text-secondary: 260 60% 82%;
+    --text-muted: 258 25% 60%;
+    --success: 155 65% 42%;
     --warning: 38 92% 50%;
-    --destructive: 0 72% 51%;
-    --radius: 0.65rem;
+    --destructive: 0 70% 55%;
+    --radius: 0.75rem;
+    --glow-primary: 0 0 40px hsl(258 90% 70% / 0.15);
+    --glow-success: 0 0 40px hsl(155 65% 42% / 0.15);
+    --glow-destructive: 0 0 40px hsl(0 70% 55% / 0.15);
   }
 }
 
@@ -34,8 +37,8 @@
 
 @layer utilities {
   .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
     background-color: hsl(var(--border-strong));
@@ -43,5 +46,35 @@
   }
   .scrollbar-thin::-webkit-scrollbar-track {
     background-color: transparent;
+  }
+
+  .glass {
+    background: hsl(var(--surface) / 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glow-success {
+    box-shadow: var(--glow-success);
+  }
+
+  .glow-destructive {
+    box-shadow: var(--glow-destructive);
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(258 90% 70% / 0.2) 0%, hsl(280 70% 60% / 0.1) 100%);
+  }
+
+  .gradient-success {
+    background: linear-gradient(135deg, hsl(155 65% 42% / 0.2) 0%, hsl(170 60% 40% / 0.1) 100%);
+  }
+
+  .gradient-destructive {
+    background: linear-gradient(135deg, hsl(0 70% 55% / 0.2) 0%, hsl(15 70% 50% / 0.1) 100%);
   }
 }
