@@ -118,9 +118,9 @@ export default function TransactionsPage() {
       <Card>
         <CardContent className="p-0">
           {loading ? (
-            <div className="space-y-2 p-4">
+            <div className="space-y-3 p-5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
+                <Skeleton key={i} className="h-14 w-full rounded-xl" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
@@ -128,50 +128,58 @@ export default function TransactionsPage() {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border text-left text-text-muted">
-                  <th className="px-4 py-3 font-medium">Descrição</th>
-                  <th className="px-4 py-3 font-medium">Categoria</th>
-                  <th className="px-4 py-3 font-medium">Conta</th>
-                  <th className="px-4 py-3 font-medium">Data</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 text-right font-medium">Valor</th>
-                  <th className="px-4 py-3" />
+                <tr className="border-b border-border/50 text-left">
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-muted">Descrição</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-muted">Categoria</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-muted">Conta</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-muted">Data</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-muted">Status</th>
+                  <th className="px-5 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-text-muted">Valor</th>
+                  <th className="px-5 py-3.5" />
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((t) => (
-                  <tr key={t.id} className="border-b border-border last:border-0 hover:bg-surface-elevated/40">
-                    <td className="px-4 py-3 text-text-primary">{t.description}</td>
-                    <td className="px-4 py-3 text-text-secondary">{categoryName(t.category_id)}</td>
-                    <td className="px-4 py-3 text-text-secondary">{accountName(t.account_id)}</td>
-                    <td className="px-4 py-3 text-text-secondary">{format(parseISO(t.date), "dd/MM/yyyy")}</td>
-                    <td className="px-4 py-3">
+                  <tr key={t.id} className="border-b border-border/30 last:border-0 transition-colors hover:bg-surface-elevated/30">
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${t.type === "income" ? "bg-success/15 text-success" : t.type === "expense" ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"}`}>
+                          {t.type === "income" ? "+" : t.type === "expense" ? "−" : "⇄"}
+                        </div>
+                        <span className="font-medium text-text-primary">{t.description}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-3.5 text-text-muted">{categoryName(t.category_id)}</td>
+                    <td className="px-5 py-3.5 text-text-muted">{accountName(t.account_id)}</td>
+                    <td className="px-5 py-3.5 text-text-muted">{format(parseISO(t.date), "dd/MM/yyyy")}</td>
+                    <td className="px-5 py-3.5">
                       <Badge variant={t.status === "completed" ? "success" : t.status === "pending" ? "warning" : "outline"}>
                         {t.status === "completed" ? "Concluída" : t.status === "pending" ? "Pendente" : "Agendada"}
                       </Badge>
                     </td>
                     <td
-                      className={`px-4 py-3 text-right font-medium ${
+                      className={`px-5 py-3.5 text-right font-semibold tabular-nums ${
                         t.type === "income" ? "text-success" : t.type === "expense" ? "text-destructive" : "text-text-primary"
                       }`}
                     >
                       {t.type === "expense" ? "-" : ""}
                       {formatCurrency(Number(t.amount))}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-3.5">
                       <div className="flex justify-end gap-1">
                         <Button
                           size="icon"
                           variant="ghost"
+                          className="h-8 w-8 rounded-lg"
                           onClick={() => {
                             setEditing(t);
                             setDialogOpen(true);
                           }}
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="h-3.5 w-3.5" />
                         </Button>
-                        <Button size="icon" variant="ghost" onClick={() => handleDelete(t.id)}>
-                          <Trash2 className="h-4 w-4" />
+                        <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => handleDelete(t.id)}>
+                          <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </td>

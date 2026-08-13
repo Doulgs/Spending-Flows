@@ -31,9 +31,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen flex-1 flex-col overflow-hidden">
         <Header title={title} />
-        <main className="scrollbar-thin flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="scrollbar-thin flex-1 overflow-y-auto p-6 lg:p-7">{children}</main>
       </div>
       <TransactionDialog
         open={isQuickAddOpen}
