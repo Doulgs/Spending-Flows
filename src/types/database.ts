@@ -489,6 +489,50 @@ export type Database = {
           },
         ]
       }
+      workspace_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          role: "editor" | "viewer"
+          status: "pending" | "accepted" | "revoked"
+          workspace_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          role: "editor" | "viewer"
+          status?: "pending" | "accepted" | "revoked"
+          workspace_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          role?: "editor" | "viewer"
+          status?: "pending" | "accepted" | "revoked"
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_invitations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspaces: {
         Row: {
           accent_color: string
@@ -524,7 +568,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_workspace_invitation: {
+        Args: { invitation_id: string }
+        Returns: Json
+      }
       is_workspace_member: { Args: { ws_id: string }; Returns: boolean }
+      list_workspace_members: {
+        Args: { ws_id: string }
+        Returns: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          role: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
@@ -669,8 +729,9 @@ export type ChannelType = "email" | "whatsapp" | "telegram" | "sms"
 
 export type Workspace = Omit<Tables<"workspaces">, "type"> & { type: WorkspaceType }
 export type WorkspaceMember = Omit<Tables<"workspace_members">, "role"> & {
-  role: "owner" | "admin" | "member"
+  role: "owner" | "editor" | "viewer"
 }
+export type WorkspaceInvitation = Tables<"workspace_invitations">
 export type Account = Omit<Tables<"accounts">, "type"> & { type: AccountType }
 export type Card = Omit<Tables<"cards">, "brand"> & { brand: CardBrand }
 export type Category = Omit<Tables<"categories">, "type"> & { type: CategoryType }

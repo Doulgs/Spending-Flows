@@ -1,6 +1,6 @@
 import {
   ArrowLeftRight, BarChart3, Calendar, CreditCard, LayoutDashboard, LineChart,
-  Radio, Repeat, Rss, Settings, Tags, Wallet,
+  Radio, Repeat, Rss, Settings, Tags, UsersRound, Wallet,
 } from "lucide-react";
 
 export const PRIMARY_NAV_ITEMS = [
@@ -12,6 +12,7 @@ export const PRIMARY_NAV_ITEMS = [
   { label: "Categorias", href: "/categories", icon: Tags },
   { label: "Recorrências", href: "/recurrences", icon: Repeat },
   { label: "Assinaturas", href: "/subscriptions", icon: Rss },
+  { label: "Membros", href: "/members", icon: UsersRound },
 ] as const;
 
 export const ANALYSIS_NAV_ITEMS = [

@@ -6,8 +6,10 @@ import type { WorkspaceOption } from "@/types";
 interface WorkspaceState {
   workspaces: WorkspaceOption[];
   currentWorkspaceId: string | null;
+  hasHydrated: boolean;
   setWorkspaces: (workspaces: WorkspaceOption[]) => void;
   setCurrentWorkspaceId: (id: string) => void;
+  setHasHydrated: (hasHydrated: boolean) => void;
   currentWorkspace: () => WorkspaceOption | undefined;
 }
 
@@ -16,6 +18,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     (set, get) => ({
       workspaces: [],
       currentWorkspaceId: null,
+      hasHydrated: false,
       setWorkspaces: (workspaces) => {
         const currentId = get().currentWorkspaceId;
         const stillExists = workspaces.some((w) => w.id === currentId);
@@ -25,8 +28,12 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         });
       },
       setCurrentWorkspaceId: (id) => set({ currentWorkspaceId: id }),
+      setHasHydrated: (hasHydrated) => set({ hasHydrated }),
       currentWorkspace: () => get().workspaces.find((w) => w.id === get().currentWorkspaceId),
     }),
-    { name: "spending-flows-workspace" }
+    {
+      name: "spending-flows-workspace",
+      skipHydration: true,
+    }
   )
 );

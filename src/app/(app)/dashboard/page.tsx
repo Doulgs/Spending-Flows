@@ -1,199 +1,173 @@
 "use client";
+
 import { useMemo } from "react";
 import Link from "next/link";
-import { ArrowDownRight, ArrowUpRight, Scale, Wallet, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { format, parseISO, startOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-import { StatCard } from "@/components/dashboard/stat-card";
-import { CashFlowChart, type CashFlowPoint } from "@/components/dashboard/cash-flow-chart";
+import { ChartAreaInteractive, type FinancialChartPoint } from "@/components/chart-area-interactive";
 import { CategoryDonutChart, type CategorySlice } from "@/components/dashboard/category-donut-chart";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionCards } from "@/components/section-cards";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useWorkspaceTable } from "@/hooks/use-workspace-table";
 import { formatCurrency } from "@/lib/utils";
 import type { Account, Category, Transaction } from "@/types";
 
-const PALETTE = ["#A179FA", "#8D67F2", "#C4A2FF", "#D6C3FA", "#6B4DBF", "#E8D9FF"];
+const PALETTE = ["#8B5CF6", "#6D5B9E", "#A78BFA", "#52525B", "#7C6FA6", "#C4B5FD"];
 
 export default function DashboardPage() {
   const { data: accounts, loading: accountsLoading, error: accountsError } = useWorkspaceTable<Account>("accounts");
-  const {
-    data: transactions,
-    loading: txLoading,
-    error: txError,
-  } = useWorkspaceTable<Transaction>("transactions", { orderBy: { column: "date", ascending: false } });
+  const { data: transactions, loading: txLoading, error: txError } = useWorkspaceTable<Transaction>("transactions", {
+    orderBy: { column: "date", ascending: false },
+  });
   const { data: categories } = useWorkspaceTable<Category>("categories");
 
   const loading = accountsLoading || txLoading;
   const error = accountsError || txError;
 
   const totals = useMemo(() => {
-    const income = transactions.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
-    const expense = transactions.filter((t) => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
-    const balance = accounts.reduce((s, a) => s + Number(a.current_balance ?? 0), 0);
+    const income = transactions.filter((transaction) => transaction.type === "income").reduce((sum, transaction) => sum + Number(transaction.amount), 0);
+    const expense = transactions.filter((transaction) => transaction.type === "expense").reduce((sum, transaction) => sum + Number(transaction.amount), 0);
+    const balance = accounts.reduce((sum, account) => sum + Number(account.current_balance ?? 0), 0);
     return { income, expense, balance, net: income - expense };
   }, [transactions, accounts]);
 
-  const cashFlowData: CashFlowPoint[] = useMemo(() => {
-    const months = Array.from({ length: 6 }).map((_, i) => startOfMonth(subMonths(new Date(), 5 - i)));
+  const cashFlowData: FinancialChartPoint[] = useMemo(() => {
+    const months = Array.from({ length: 6 }, (_, index) => startOfMonth(subMonths(new Date(), 5 - index)));
     return months.map((monthStart) => {
-      const label = format(monthStart, "MMM", { locale: ptBR });
-      const monthTx = transactions.filter((t) => {
-        const d = parseISO(t.date);
-        return d.getFullYear() === monthStart.getFullYear() && d.getMonth() === monthStart.getMonth();
+      const monthTransactions = transactions.filter((transaction) => {
+        const date = parseISO(transaction.date);
+        return date.getFullYear() === monthStart.getFullYear() && date.getMonth() === monthStart.getMonth();
       });
+      const label = format(monthStart, "MMM", { locale: ptBR });
       return {
         label: label.charAt(0).toUpperCase() + label.slice(1),
-        income: monthTx.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0),
-        expense: monthTx.filter((t) => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0),
+        income: monthTransactions.filter((transaction) => transaction.type === "income").reduce((sum, transaction) => sum + Number(transaction.amount), 0),
+        expense: monthTransactions.filter((transaction) => transaction.type === "expense").reduce((sum, transaction) => sum + Number(transaction.amount), 0),
       };
     });
   }, [transactions]);
 
   const categoryData: CategorySlice[] = useMemo(() => {
-    const byCategory = new Map<string, number>();
-    transactions
-      .filter((t) => t.type === "expense")
-      .forEach((t) => {
-        const cat = categories.find((c) => c.id === t.category_id);
-        const name = cat?.name ?? "Sem categoria";
-        byCategory.set(name, (byCategory.get(name) ?? 0) + Number(t.amount));
-      });
-    return Array.from(byCategory.entries())
-      .sort((a, b) => b[1] - a[1])
-      .map(([name, value], i) => ({ name, value, color: PALETTE[i % PALETTE.length] }));
+    const totalsByCategory = new Map<string, number>();
+    transactions.filter((transaction) => transaction.type === "expense").forEach((transaction) => {
+      const category = categories.find((item) => item.id === transaction.category_id);
+      const name = category?.name ?? "Sem categoria";
+      totalsByCategory.set(name, (totalsByCategory.get(name) ?? 0) + Number(transaction.amount));
+    });
+    return Array.from(totalsByCategory.entries())
+      .sort((left, right) => right[1] - left[1])
+      .map(([name, value], index) => ({ name, value, color: PALETTE[index % PALETTE.length] }));
   }, [transactions, categories]);
-
-  const recentTransactions = transactions.slice(0, 8);
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 rounded-2xl" />
-          ))}
+      <div className="space-y-5">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }, (_, index) => <Skeleton key={index} className="h-40 rounded-xl" />)}
         </div>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <Skeleton className="col-span-2 h-80 rounded-2xl" />
-          <Skeleton className="h-80 rounded-2xl" />
-        </div>
+        <Skeleton className="h-[410px] rounded-xl" />
       </div>
     );
   }
 
+  const recentTransactions = transactions.slice(0, 8);
+
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-5">
+      <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+        <div>
+          <h1 className="text-xl font-semibold tracking-[-0.025em] text-text-primary">Visão geral</h1>
+          <p className="mt-1 text-sm text-text-muted">
+            {format(new Date(), "MMMM 'de' yyyy", { locale: ptBR }).replace(/^\w/, (character) => character.toUpperCase())}
+          </p>
+        </div>
+        <p className="text-xs text-text-muted">Dados consolidados do workspace atual</p>
+      </div>
+
       {error && (
-        <div className="rounded-2xl border border-warning-border bg-warning-subtle p-4 text-sm text-warning">
+        <div className="rounded-lg border border-warning-border bg-warning-subtle p-4 text-sm text-warning">
           Não foi possível carregar dados do Supabase ({error}). Verifique se as credenciais foram configuradas.
         </div>
       )}
 
-      {/* Overview header */}
-      <div className="rounded-2xl border border-border-subtle bg-gradient-to-r from-primary-subtle via-primary-subtle to-transparent p-5">
-        <p className="text-xs font-semibold uppercase tracking-widest text-text-muted">Visão Geral</p>
-        <p className="mt-1 text-2xl font-bold text-text-primary">
-          {format(new Date(), "MMMM 'de' yyyy", { locale: ptBR }).replace(/^\w/, (c) => c.toUpperCase())}
-        </p>
-      </div>
+      <SectionCards balance={totals.balance} income={totals.income} expense={totals.expense} net={totals.net} />
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Saldo total" value={formatCurrency(totals.balance)} icon={Wallet} accent="primary" />
-        <StatCard label="Receitas" value={formatCurrency(totals.income)} icon={ArrowUpRight} accent="success" />
-        <StatCard label="Despesas" value={formatCurrency(totals.expense)} icon={ArrowDownRight} accent="destructive" />
-        <StatCard
-          label="Fluxo líquido"
-          value={formatCurrency(totals.net)}
-          icon={Scale}
-          accent={totals.net >= 0 ? "success" : "destructive"}
-        />
-      </div>
+      <ChartAreaInteractive data={cashFlowData} />
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <CashFlowChart data={cashFlowData} />
-        <CategoryDonutChart data={categoryData} />
-      </div>
-
-      {/* Bottom section */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle>Transações Recentes</CardTitle>
-              <Link href="/transactions" className="flex items-center gap-1 text-xs text-primary hover:underline">
-                Ver todas <ArrowRight className="h-3 w-3" />
-              </Link>
+      <div className="grid gap-5 lg:grid-cols-3">
+        <Card className="overflow-hidden lg:col-span-2">
+          <CardHeader className="flex-row items-center justify-between space-y-0 border-b border-border-subtle">
+            <div>
+              <CardTitle>Transações recentes</CardTitle>
+              <CardDescription className="mt-1">Últimas movimentações do workspace</CardDescription>
             </div>
+            <Link href="/transactions" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+              Ver todas <ArrowRight className="size-3" />
+            </Link>
           </CardHeader>
           <CardContent className="p-0">
             {recentTransactions.length === 0 ? (
-              <p className="px-6 pb-6 text-sm text-text-muted">Nenhuma transação registrada ainda.</p>
+              <p className="p-6 text-sm text-text-muted">Nenhuma transação registrada ainda.</p>
             ) : (
-              <ul>
-                {recentTransactions.map((t, idx) => (
-                  <li
-                    key={t.id}
-                    className={`flex items-center justify-between px-6 py-3 transition-colors hover:bg-surface-hover ${idx !== recentTransactions.length - 1 ? "border-b border-border-subtle" : ""}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-bold ${t.type === "income" ? "bg-success-subtle text-success" : t.type === "expense" ? "bg-destructive-subtle text-destructive" : "bg-primary-subtle text-primary"}`}>
-                        {t.type === "income" ? "+" : t.type === "expense" ? "−" : "⇄"}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-text-primary leading-tight">{t.description}</p>
-                        <p className="text-xs text-text-muted">{format(parseISO(t.date), "dd/MM/yyyy")}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={t.type === "income" ? "success" : t.type === "expense" ? "destructive" : "outline"} className="text-[10px]">
-                        {t.type === "income" ? "Receita" : t.type === "expense" ? "Despesa" : "Transf."}
-                      </Badge>
-                      <span className={`text-sm font-semibold tabular-nums ${t.type === "income" ? "text-success" : t.type === "expense" ? "text-destructive" : "text-text-primary"}`}>
-                        {t.type === "expense" ? "-" : "+"}{formatCurrency(Number(t.amount))}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>Descrição</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead className="text-right">Valor</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentTransactions.map((transaction) => (
+                    <TableRow key={transaction.id}>
+                      <TableCell className="max-w-[220px] truncate font-medium">{transaction.description}</TableCell>
+                      <TableCell>
+                        <Badge variant={transaction.type === "income" ? "success" : transaction.type === "expense" ? "destructive" : "outline"} className="text-[10px]">
+                          {transaction.type === "income" ? "Receita" : transaction.type === "expense" ? "Despesa" : "Transferência"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-text-muted">{format(parseISO(transaction.date), "dd/MM/yyyy")}</TableCell>
+                      <TableCell className={transaction.type === "expense" ? "text-right font-medium tabular-nums text-destructive" : "text-right font-medium tabular-nums text-success"}>
+                        {transaction.type === "expense" ? "−" : "+"}{formatCurrency(Number(transaction.amount))}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>Saldo por Conta</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            {accounts.length === 0 ? (
-              <p className="px-6 pb-6 text-sm text-text-muted">Nenhuma conta cadastrada ainda.</p>
-            ) : (
-              <ul>
-                {accounts.map((a, idx) => (
-                  <li
-                    key={a.id}
-                    className={`flex items-center justify-between px-6 py-3.5 transition-colors hover:bg-surface-hover ${idx !== accounts.length - 1 ? "border-b border-border-subtle" : ""}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-subtle text-xs font-bold text-primary">
-                        {a.name.charAt(0).toUpperCase()}
-                      </div>
-                      <p className="text-sm font-medium text-text-primary">{a.name}</p>
-                    </div>
-                    <span className={`text-sm font-semibold tabular-nums ${Number(a.current_balance ?? 0) >= 0 ? "text-success" : "text-destructive"}`}>
-                      {formatCurrency(Number(a.current_balance ?? 0))}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+        <CategoryDonutChart data={categoryData} />
       </div>
+
+      <Card>
+        <CardHeader className="border-b border-border-subtle">
+          <CardTitle>Contas</CardTitle>
+          <CardDescription>Saldos consolidados por conta</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-px bg-border-subtle p-0 sm:grid-cols-2 xl:grid-cols-3">
+          {accounts.length === 0 ? (
+            <p className="bg-surface p-6 text-sm text-text-muted">Nenhuma conta cadastrada ainda.</p>
+          ) : accounts.map((account) => (
+            <div key={account.id} className="flex items-center justify-between bg-surface px-5 py-4">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-md border border-border bg-background text-xs font-semibold text-primary">{account.name.charAt(0).toUpperCase()}</span>
+                <span className="truncate text-sm font-medium">{account.name}</span>
+              </div>
+              <span className={Number(account.current_balance ?? 0) >= 0 ? "ml-3 text-sm font-medium tabular-nums text-success" : "ml-3 text-sm font-medium tabular-nums text-destructive"}>
+                {formatCurrency(Number(account.current_balance ?? 0))}
+              </span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   );
 }

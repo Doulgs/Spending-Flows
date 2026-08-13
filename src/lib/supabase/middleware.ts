@@ -48,6 +48,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/reports") ||
     pathname.startsWith("/channels") ||
     pathname.startsWith("/settings") ||
+    pathname.startsWith("/members") ||
     pathname.startsWith("/onboarding");
 
   if (user && pathname === "/login") {
@@ -59,6 +60,7 @@ export async function updateSession(request: NextRequest) {
   if (!user && isAppRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 

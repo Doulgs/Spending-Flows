@@ -16,8 +16,8 @@ export function WorkspaceSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex w-full items-center gap-2.5 rounded-xl border border-border-subtle bg-surface px-3 py-2.5 text-left text-sm transition-all hover:border-border hover:bg-surface-elevated">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-subtle text-primary ring-1 ring-primary-border">
+        <button className="flex w-full items-center gap-2.5 rounded-md border border-sidebar-border bg-sidebar-accent px-2.5 py-2 text-left text-sm transition-colors hover:bg-surface-elevated">
+          <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary-subtle text-primary">
             <Building2 className="h-3.5 w-3.5" />
           </div>
           <div className="min-w-0 flex-1">
