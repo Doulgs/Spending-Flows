@@ -21,6 +21,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { AccentColorPicker } from "@/components/workspaces/accent-color-picker";
 import { applyAccentTheme, isValidAccentColor, normalizeAccentColor } from "@/lib/theme";
+import { WorkspaceAISettings } from "@/components/settings/workspace-ai-settings";
 
 export default function SettingsPage() {
   const { toast } = useToast();
@@ -118,6 +119,8 @@ export default function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
+
+      <WorkspaceAISettings workspaceId={currentWorkspaceId} canEdit={canEditWorkspace} />
     </div>
   );
 }

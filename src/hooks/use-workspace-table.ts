@@ -55,7 +55,10 @@ export function useWorkspaceTable<T = Record<string, unknown>>(
   }, [table, workspaceId, options.select, options.orderBy?.column, options.orderBy?.ascending]);
 
   useEffect(() => {
-    refresh();
+    void refresh();
+    const handleWorkspaceDataChanged = () => { void refresh(); };
+    window.addEventListener("workspace-data-changed", handleWorkspaceDataChanged);
+    return () => window.removeEventListener("workspace-data-changed", handleWorkspaceDataChanged);
   }, [refresh]);
 
   return { data, loading, error, refresh };

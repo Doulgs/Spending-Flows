@@ -9,12 +9,15 @@ import { WorkspaceThemeSync } from "@/components/layout/workspace-theme-sync";
 import { FloatingQuickAdd } from "@/components/layout/floating-quick-add";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AIImportDialog } from "@/components/imports/ai-import-dialog";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isQuickAddOpen = useUIStore((s) => s.isQuickAddOpen);
   const quickAddType = useUIStore((s) => s.quickAddType);
   const closeQuickAdd = useUIStore((s) => s.closeQuickAdd);
+  const isAIImportOpen = useUIStore((s) => s.isAIImportOpen);
+  const closeAIImport = useUIStore((s) => s.closeAIImport);
 
   const title = getPageTitle(pathname);
 
@@ -33,6 +36,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         onOpenChange={(open) => !open && closeQuickAdd()}
         defaultType={quickAddType}
       />
+      <AIImportDialog open={isAIImportOpen} onOpenChange={(open) => !open && closeAIImport()} />
     </SidebarProvider>
   );
 }

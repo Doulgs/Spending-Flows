@@ -14,53 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      accounts: {
-        Row: {
-          archived: boolean
-          color: string | null
-          created_at: string
-          currency: string
-          current_balance: number
-          id: string
-          initial_balance: number
-          name: string
-          type: string
-          workspace_id: string
-        }
-        Insert: {
-          archived?: boolean
-          color?: string | null
-          created_at?: string
-          currency?: string
-          current_balance?: number
-          id?: string
-          initial_balance?: number
-          name: string
-          type?: string
-          workspace_id: string
-        }
-        Update: {
-          archived?: boolean
-          color?: string | null
-          created_at?: string
-          currency?: string
-          current_balance?: number
-          id?: string
-          initial_balance?: number
-          name?: string
-          type?: string
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "accounts_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       account_feature_flags: {
         Row: {
           account_id: string
@@ -92,6 +45,118 @@ export type Database = {
             columns: ["feature_flag_id"]
             isOneToOne: false
             referencedRelation: "feature_flags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accounts: {
+        Row: {
+          archived: boolean
+          color: string | null
+          created_at: string
+          created_by_ai: boolean
+          currency: string
+          current_balance: number
+          id: string
+          initial_balance: number
+          name: string
+          type: string
+          workspace_id: string
+        }
+        Insert: {
+          archived?: boolean
+          color?: string | null
+          created_at?: string
+          created_by_ai?: boolean
+          currency?: string
+          current_balance?: number
+          id?: string
+          initial_balance?: number
+          name: string
+          type?: string
+          workspace_id: string
+        }
+        Update: {
+          archived?: boolean
+          color?: string | null
+          created_at?: string
+          created_by_ai?: boolean
+          currency?: string
+          current_balance?: number
+          id?: string
+          initial_balance?: number
+          name?: string
+          type?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_import_jobs: {
+        Row: {
+          analysis: Json | null
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          created_by_ai: boolean
+          error_message: string | null
+          file_name: string
+          file_type: string
+          id: string
+          model: string
+          options: Json
+          provider: string
+          source_row_count: number
+          status: string
+          workspace_id: string
+        }
+        Insert: {
+          analysis?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          created_by_ai?: boolean
+          error_message?: string | null
+          file_name: string
+          file_type: string
+          id?: string
+          model: string
+          options?: Json
+          provider: string
+          source_row_count?: number
+          status?: string
+          workspace_id: string
+        }
+        Update: {
+          analysis?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          created_by_ai?: boolean
+          error_message?: string | null
+          file_name?: string
+          file_type?: string
+          id?: string
+          model?: string
+          options?: Json
+          provider?: string
+          source_row_count?: number
+          status?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_import_jobs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
         ]
@@ -157,6 +222,7 @@ export type Database = {
         Row: {
           color: string | null
           created_at: string
+          created_by_ai: boolean
           icon: string | null
           id: string
           name: string
@@ -167,6 +233,7 @@ export type Database = {
         Insert: {
           color?: string | null
           created_at?: string
+          created_by_ai?: boolean
           icon?: string | null
           id?: string
           name: string
@@ -177,6 +244,7 @@ export type Database = {
         Update: {
           color?: string | null
           created_at?: string
+          created_by_ai?: boolean
           icon?: string | null
           id?: string
           name?: string
@@ -194,6 +262,41 @@ export type Database = {
           },
           {
             foreignKeyName: "categories_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channels: {
+        Row: {
+          created_at: string
+          id: string
+          identifier: string
+          type: string
+          verified: boolean
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          identifier: string
+          type: string
+          verified?: boolean
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          identifier?: string
+          type?: string
+          verified?: boolean
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channels_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -230,41 +333,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      channels: {
-        Row: {
-          created_at: string
-          id: string
-          identifier: string
-          type: string
-          verified: boolean
-          workspace_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          identifier: string
-          type: string
-          verified?: boolean
-          workspace_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          identifier?: string
-          type?: string
-          verified?: boolean
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "channels_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       notifications: {
         Row: {
@@ -381,6 +449,7 @@ export type Database = {
           card_id: string | null
           category_id: string | null
           created_at: string
+          created_by_ai: boolean
           frequency: string
           icon: string | null
           id: string
@@ -394,6 +463,7 @@ export type Database = {
           card_id?: string | null
           category_id?: string | null
           created_at?: string
+          created_by_ai?: boolean
           frequency?: string
           icon?: string | null
           id?: string
@@ -407,6 +477,7 @@ export type Database = {
           card_id?: string | null
           category_id?: string | null
           created_at?: string
+          created_by_ai?: boolean
           frequency?: string
           icon?: string | null
           id?: string
@@ -446,6 +517,7 @@ export type Database = {
           category_id: string | null
           created_at: string
           created_by: string | null
+          created_by_ai: boolean
           created_by_name: string | null
           date: string
           description: string
@@ -463,6 +535,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           created_by?: string | null
+          created_by_ai?: boolean
           created_by_name?: string | null
           date?: string
           description: string
@@ -480,6 +553,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           created_by?: string | null
+          created_by_ai?: boolean
           created_by_name?: string | null
           date?: string
           description?: string
@@ -528,6 +602,91 @@ export type Database = {
           },
         ]
       }
+      workspace_ai_settings: {
+        Row: {
+          api_key_hint: string
+          created_at: string
+          model: string
+          provider: string
+          secret_id: string
+          updated_at: string
+          updated_by: string
+          workspace_id: string
+        }
+        Insert: {
+          api_key_hint: string
+          created_at?: string
+          model: string
+          provider: string
+          secret_id: string
+          updated_at?: string
+          updated_by: string
+          workspace_id: string
+        }
+        Update: {
+          api_key_hint?: string
+          created_at?: string
+          model?: string
+          provider?: string
+          secret_id?: string
+          updated_at?: string
+          updated_by?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_ai_settings_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: true
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          role: string
+          status: string
+          workspace_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          role: string
+          status?: string
+          workspace_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          role?: string
+          status?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_invitations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_members: {
         Row: {
           created_at: string
@@ -553,50 +712,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "workspace_members_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      workspace_invitations: {
-        Row: {
-          accepted_at: string | null
-          created_at: string
-          email: string
-          expires_at: string
-          id: string
-          invited_by: string
-          role: "editor" | "viewer"
-          status: "pending" | "accepted" | "revoked"
-          workspace_id: string
-        }
-        Insert: {
-          accepted_at?: string | null
-          created_at?: string
-          email: string
-          expires_at?: string
-          id?: string
-          invited_by: string
-          role: "editor" | "viewer"
-          status?: "pending" | "accepted" | "revoked"
-          workspace_id: string
-        }
-        Update: {
-          accepted_at?: string | null
-          created_at?: string
-          email?: string
-          expires_at?: string
-          id?: string
-          invited_by?: string
-          role?: "editor" | "viewer"
-          status?: "pending" | "accepted" | "revoked"
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "workspace_invitations_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -643,6 +758,10 @@ export type Database = {
         Args: { invitation_id: string }
         Returns: Json
       }
+      apply_ai_import_job: {
+        Args: { p_actor_id: string; p_actor_name: string; p_job_id: string }
+        Returns: Json
+      }
       complete_onboarding: {
         Args: {
           account_name: string
@@ -658,15 +777,20 @@ export type Database = {
         Returns: string
       }
       ensure_default_workspace: { Args: never; Returns: string }
-      is_feature_enabled: {
-        Args: { flag_key: string }
-        Returns: boolean
+      get_workspace_ai_secret: {
+        Args: { p_workspace_id: string }
+        Returns: {
+          api_key: string
+          model: string
+          provider: string
+        }[]
       }
+      is_feature_enabled: { Args: { flag_key: string }; Returns: boolean }
       is_workspace_member: { Args: { ws_id: string }; Returns: boolean }
       list_workspace_members: {
         Args: { ws_id: string }
         Returns: {
-          avatar_url: string | null
+          avatar_url: string
           created_at: string
           display_name: string
           email: string
@@ -674,6 +798,16 @@ export type Database = {
           role: string
           user_id: string
         }[]
+      }
+      save_workspace_ai_setting: {
+        Args: {
+          p_api_key: string
+          p_model: string
+          p_provider: string
+          p_updated_by: string
+          p_workspace_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
