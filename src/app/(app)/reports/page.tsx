@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useWorkspaceTable } from "@/hooks/use-workspace-table";
 import { formatCurrency } from "@/lib/utils";
 import type { Category, Transaction } from "@/types";
+import { ANALYTICS_SECTIONS, SectionSwitcher } from "@/components/layout/section-switcher";
 
 export default function ReportsPage() {
   const { data: transactions, loading, error } = useWorkspaceTable<Transaction>("transactions");
@@ -31,6 +32,7 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
+      <SectionSwitcher items={ANALYTICS_SECTIONS} />
       {error && (
         <div className="rounded-md border border-warning-border bg-warning-subtle p-4 text-sm text-warning">
           Não foi possível carregar os relatórios ({error}).
@@ -65,7 +67,7 @@ export default function ReportsPage() {
           <CardHeader>
             <CardTitle>Despesas por categoria</CardTitle>
           </CardHeader>
-          <CardContent className="h-96">
+          <CardContent className="h-80 px-2 sm:h-96 sm:px-6">
             {byCategory.length === 0 ? (
               <div className="flex h-full items-center justify-center text-sm text-text-muted">
                 Nenhuma despesa registrada ainda.

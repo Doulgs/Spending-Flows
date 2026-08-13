@@ -13,6 +13,7 @@ import { useWorkspaceTable } from "@/hooks/use-workspace-table";
 import { createClient } from "@/lib/supabase/client";
 import { formatCurrency } from "@/lib/utils";
 import type { Category, Recurrence } from "@/types";
+import { RECURRING_SECTIONS, SectionSwitcher } from "@/components/layout/section-switcher";
 
 const FREQUENCY_LABEL: Record<string, string> = {
   daily: "Diária",
@@ -49,6 +50,7 @@ export default function RecurrencesPage() {
 
   return (
     <div className="space-y-6">
+      <SectionSwitcher items={RECURRING_SECTIONS} />
       <div className="flex justify-end">
         <Button onClick={() => setDialogOpen(true)}>
           <Plus className="h-4 w-4" /> Nova recorrência
@@ -69,20 +71,20 @@ export default function RecurrencesPage() {
             <p className="py-6 text-center text-sm text-text-muted">Nenhuma recorrência cadastrada.</p>
           ) : (
             recurrences.map((r) => (
-              <div key={r.id} className="flex items-center justify-between rounded-md border border-border px-4 py-3">
-                <div className="flex items-center gap-3">
+              <div key={r.id} className="flex flex-col gap-3 rounded-xl border border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 items-center gap-3">
                   <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-subtle text-primary">
                     <Repeat className="h-4 w-4" />
                   </span>
-                  <div>
-                    <p className="text-sm font-medium text-text-primary">{r.description}</p>
-                    <p className="text-xs text-text-muted">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-text-primary">{r.description}</p>
+                    <p className="text-xs leading-5 text-text-muted">
                       {categoryName(r.category_id)} · {FREQUENCY_LABEL[r.frequency]} · Próxima:{" "}
                       {format(parseISO(r.next_occurrence), "dd/MM/yyyy")}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between gap-3 sm:justify-end">
                   <Badge variant={r.type === "income" ? "success" : "destructive"}>
                     {r.type === "income" ? "+" : "-"}
                     {formatCurrency(Number(r.amount))}

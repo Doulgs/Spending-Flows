@@ -61,6 +61,41 @@ export type Database = {
           },
         ]
       }
+      account_feature_flags: {
+        Row: {
+          account_id: string
+          created_at: string
+          enabled: boolean
+          feature_flag_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          enabled: boolean
+          feature_flag_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          enabled?: boolean
+          feature_flag_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_feature_flags_feature_flag_id_fkey"
+            columns: ["feature_flag_id"]
+            isOneToOne: false
+            referencedRelation: "feature_flags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cards: {
         Row: {
           account_id: string | null
@@ -165,6 +200,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      feature_flags: {
+        Row: {
+          created_at: string
+          description: string | null
+          enabled: boolean
+          id: string
+          key: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       channels: {
         Row: {
@@ -380,6 +445,8 @@ export type Database = {
           card_id: string | null
           category_id: string | null
           created_at: string
+          created_by: string | null
+          created_by_name: string | null
           date: string
           description: string
           id: string
@@ -395,6 +462,8 @@ export type Database = {
           card_id?: string | null
           category_id?: string | null
           created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
           date?: string
           description: string
           id?: string
@@ -410,6 +479,8 @@ export type Database = {
           card_id?: string | null
           category_id?: string | null
           created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
           date?: string
           description?: string
           id?: string
@@ -571,6 +642,25 @@ export type Database = {
       accept_workspace_invitation: {
         Args: { invitation_id: string }
         Returns: Json
+      }
+      complete_onboarding: {
+        Args: {
+          account_name: string
+          account_type: string
+          expense_categories: string[]
+          income_categories: string[]
+          initial_balance: number
+          workspace_accent_color: string
+          workspace_currency: string
+          workspace_name: string
+          workspace_type: string
+        }
+        Returns: string
+      }
+      ensure_default_workspace: { Args: never; Returns: string }
+      is_feature_enabled: {
+        Args: { flag_key: string }
+        Returns: boolean
       }
       is_workspace_member: { Args: { ws_id: string }; Returns: boolean }
       list_workspace_members: {
@@ -748,3 +838,5 @@ export type Subscription = Omit<Tables<"subscriptions">, "frequency"> & {
 }
 export type Channel = Omit<Tables<"channels">, "type"> & { type: ChannelType }
 export type Notification = Tables<"notifications">
+export type FeatureFlag = Tables<"feature_flags">
+export type AccountFeatureFlag = Tables<"account_feature_flags">

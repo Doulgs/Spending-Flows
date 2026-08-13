@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Loader2, ReceiptText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +21,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -55,6 +57,7 @@ export function TransactionDialog({
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(false);
 
   const form = useForm<TransactionInput>({
     resolver: zodResolver(transactionSchema),
@@ -87,16 +90,19 @@ export function TransactionDialog({
     if (!open || !currentWorkspaceId) return;
     const activeWorkspaceId = currentWorkspaceId;
     async function loadData() {
+      setDataLoading(true);
       const supabase = createClient();
-      const [{ data: accData }, { data: catData }] = await Promise.all([
+      const [{ data: accData, error: accountError }, { data: catData, error: categoryError }] = await Promise.all([
         supabase.from("accounts").select("*").eq("workspace_id", activeWorkspaceId),
         supabase.from("categories").select("*").eq("workspace_id", activeWorkspaceId),
       ]);
+      if (accountError || categoryError) throw accountError ?? categoryError;
       setAccounts((accData as Account[]) ?? []);
       setCategories((catData as Category[]) ?? []);
+      setDataLoading(false);
     }
     loadData().catch(() => {
-      /* handled via graceful empty state */
+      setDataLoading(false);
     });
   }, [open, currentWorkspaceId]);
 
@@ -148,27 +154,28 @@ export function TransactionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{transaction?.id ? "Editar transação" : "Nova transação"}</DialogTitle>
+      <DialogContent className="max-h-[96svh] w-[calc(100%-0.75rem)] gap-0 overflow-hidden rounded-[24px] border-border bg-background p-0 sm:max-w-2xl">
+        <DialogHeader className="border-b border-border bg-surface px-5 py-5 text-left sm:px-7">
+          <div className="flex items-center gap-3"><div className="flex size-10 items-center justify-center rounded-xl bg-primary-subtle text-primary"><ReceiptText className="size-5"/></div><div><DialogTitle className="text-xl">{transaction?.id ? "Editar lançamento" : "Novo lançamento"}</DialogTitle><p className="mt-1 text-xs text-text-muted">Registre os detalhes para manter seu fluxo sempre atualizado.</p></div></div>
         </DialogHeader>
 
+        <div className="scrollbar-thin overflow-y-auto px-4 py-5 sm:px-7">
         <Tabs value={type} onValueChange={(v) => form.setValue("type", v as TransactionInput["type"])}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="expense">Despesa</TabsTrigger>
-            <TabsTrigger value="income">Receita</TabsTrigger>
-            <TabsTrigger value="transfer">Transferência</TabsTrigger>
+          <TabsList className="grid h-auto w-full grid-cols-3 bg-surface p-1">
+            <TabsTrigger value="expense" className="min-h-11 gap-1.5"><ArrowUpRight className="hidden size-4 sm:block"/>Despesa</TabsTrigger>
+            <TabsTrigger value="income" className="min-h-11 gap-1.5"><ArrowDownLeft className="hidden size-4 sm:block"/>Receita</TabsTrigger>
+            <TabsTrigger value="transfer" className="min-h-11 gap-1.5"><ArrowLeftRight className="hidden size-4 sm:block"/>Transferir</TabsTrigger>
           </TabsList>
         </Tabs>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5 space-y-5">
             <FormField
               control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descrição</FormLabel>
+                  <FormLabel>Nome do lançamento</FormLabel>
                   <FormControl>
                     <Input placeholder="Ex: Supermercado" {...field} />
                   </FormControl>
@@ -177,7 +184,7 @@ export function TransactionDialog({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="amount"
@@ -185,7 +192,7 @@ export function TransactionDialog({
                   <FormItem>
                     <FormLabel>Valor</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" {...field} />
+                      <Input type="number" inputMode="decimal" step="0.01" placeholder="0,00" className="h-12 text-lg font-semibold tabular-nums" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -206,7 +213,7 @@ export function TransactionDialog({
               />
             </div>
 
-            <FormField
+            {dataLoading ? <div className="space-y-3"><Skeleton className="h-11 w-full"/><Skeleton className="h-11 w-full"/></div> : <FormField
               control={form.control}
               name="account_id"
               render={({ field }) => (
@@ -232,7 +239,7 @@ export function TransactionDialog({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            />}
 
             {type === "transfer" ? (
               <FormField
@@ -291,6 +298,18 @@ export function TransactionDialog({
 
             <FormField
               control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descrição <span className="font-normal text-text-muted">(opcional)</span></FormLabel>
+                  <FormControl><Textarea placeholder="Adicione contexto, observações ou detalhes deste lançamento..." className="min-h-24 resize-none" {...field} value={field.value ?? ""} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="status"
               render={({ field }) => (
                 <FormItem>
@@ -312,17 +331,18 @@ export function TransactionDialog({
               )}
             />
 
-            <DialogFooter>
+            <DialogFooter className="sticky bottom-0 -mx-4 -mb-5 border-t border-border bg-background px-4 py-4 sm:-mx-7 sm:px-7">
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" className="min-h-11 sm:min-w-32" disabled={loading || dataLoading}>
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 Salvar
               </Button>
             </DialogFooter>
           </form>
         </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

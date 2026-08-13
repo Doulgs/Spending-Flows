@@ -4,7 +4,10 @@ import { createClient } from "@/lib/supabase/client";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import type { Database } from "@/types/database";
 
-type WorkspaceScopedTable = Exclude<keyof Database["public"]["Tables"], "workspaces">;
+type PublicTables = Database["public"]["Tables"];
+type WorkspaceScopedTable = {
+  [Table in keyof PublicTables]: "workspace_id" extends keyof PublicTables[Table]["Row"] ? Table : never
+}[keyof PublicTables];
 
 interface UseWorkspaceTableOptions {
   select?: string;

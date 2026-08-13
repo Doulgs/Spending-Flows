@@ -21,6 +21,7 @@ import { useWorkspaceTable } from "@/hooks/use-workspace-table";
 import { createClient } from "@/lib/supabase/client";
 import { formatCurrency } from "@/lib/utils";
 import type { Account, Category, Transaction } from "@/types";
+import { CategoryIcon } from "@/components/categories/category-icon";
 
 export default function TransactionsPage() {
   const { data: transactions, loading, error, refresh } = useWorkspaceTable<Transaction>("transactions", {
@@ -46,6 +47,7 @@ export default function TransactionsPage() {
   }, [transactions, typeFilter, accountFilter, search]);
 
   const categoryName = (id: string | null) => categories.find((c) => c.id === id)?.name ?? "—";
+  const categoryFor = (id: string | null) => categories.find((category) => category.id === id);
   const accountName = (id: string | null) => accounts.find((a) => a.id === id)?.name ?? "—";
 
   const handleDelete = async (id: string) => {
@@ -67,15 +69,15 @@ export default function TransactionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:gap-3">
           <Input
             placeholder="Buscar transação..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-56"
+            className="col-span-2 w-full sm:w-56"
           />
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-full sm:w-40">
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
             <SelectContent>
@@ -86,7 +88,7 @@ export default function TransactionsPage() {
             </SelectContent>
           </Select>
           <Select value={accountFilter} onValueChange={setAccountFilter}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Conta" />
             </SelectTrigger>
             <SelectContent>
@@ -99,7 +101,7 @@ export default function TransactionsPage() {
             </SelectContent>
           </Select>
         </div>
-        <Button
+        <Button className="w-full sm:w-auto"
           onClick={() => {
             setEditing(null);
             setDialogOpen(true);
@@ -126,7 +128,15 @@ export default function TransactionsPage() {
           ) : filtered.length === 0 ? (
             <div className="p-10 text-center text-sm text-text-muted">Nenhuma transação encontrada.</div>
           ) : (
-            <table className="w-full text-sm">
+            <>
+            <div className="space-y-2 p-3 md:hidden">
+              {filtered.map((transaction) => {
+                const category = categoryFor(transaction.category_id);
+                return <article key={transaction.id} className="rounded-xl border border-border bg-surface p-4"><div className="flex items-start gap-3"><div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface-elevated" style={{ color: category?.color ?? undefined }}><CategoryIcon name={category?.icon} className="size-4"/></div><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-sm font-semibold">{transaction.description}</h3><p className="mt-1 truncate text-xs text-text-muted">{category?.name ?? "Sem categoria"} · {accountName(transaction.account_id)}</p></div><p className={transaction.type === "expense" ? "shrink-0 text-sm font-semibold tabular-nums text-destructive" : "shrink-0 text-sm font-semibold tabular-nums text-success"}>{transaction.type === "expense" ? "−" : "+"}{formatCurrency(Number(transaction.amount))}</p></div>{transaction.notes && <p className="mt-2 line-clamp-2 text-xs leading-5 text-text-muted">{transaction.notes}</p>}<div className="mt-3 flex items-center justify-between border-t border-border pt-3"><div><p className="text-[10px] text-text-muted">{format(parseISO(transaction.date), "dd/MM/yyyy")}</p><p className="mt-0.5 text-[10px] text-text-muted">Lançado por {transaction.created_by_name ?? "Usuário"}</p></div><div className="flex gap-1"><Button size="icon" variant="ghost" className="size-9" onClick={() => { setEditing(transaction); setDialogOpen(true); }}><Pencil className="size-3.5"/><span className="sr-only">Editar</span></Button><Button size="icon" variant="ghost" className="size-9" onClick={() => handleDelete(transaction.id)}><Trash2 className="size-3.5"/><span className="sr-only">Excluir</span></Button></div></div></div></div></article>;
+              })}
+            </div>
+            <div className="hidden overflow-x-auto md:block">
+            <table className="w-full min-w-[860px] text-sm">
               <thead>
                 <tr className="border-b border-border-subtle text-left">
                   <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-muted">Descrição</th>
@@ -146,7 +156,7 @@ export default function TransactionsPage() {
                         <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${t.type === "income" ? "bg-success-subtle text-success" : t.type === "expense" ? "bg-destructive-subtle text-destructive" : "bg-primary-subtle text-primary"}`}>
                           {t.type === "income" ? "+" : t.type === "expense" ? "−" : "⇄"}
                         </div>
-                        <span className="font-medium text-text-primary">{t.description}</span>
+                        <div><span className="font-medium text-text-primary">{t.description}</span><p className="mt-1 text-[10px] text-text-muted">Lançado por {t.created_by_name ?? "Usuário"}</p></div>
                       </div>
                     </td>
                     <td className="px-5 py-3.5 text-text-muted">{categoryName(t.category_id)}</td>
@@ -187,6 +197,8 @@ export default function TransactionsPage() {
                 ))}
               </tbody>
             </table>
+            </div>
+            </>
           )}
         </CardContent>
       </Card>

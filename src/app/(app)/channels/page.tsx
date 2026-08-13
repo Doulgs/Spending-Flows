@@ -134,7 +134,7 @@ export default function ChannelsPage() {
             channels.map((c) => {
               const Icon = CHANNEL_ICONS[c.type] ?? RadioIcon;
               return (
-                <div key={c.id} className="flex items-center justify-between rounded-md border border-border px-4 py-3">
+                <div key={c.id} className="flex flex-col gap-3 rounded-xl border border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-3">
                     <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-subtle text-primary">
                       <Icon className="h-4 w-4" />

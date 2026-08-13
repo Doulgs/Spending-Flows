@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { signInWithGoogle, signInWithPassword, signUpWithPassword } from "@/features/auth/actions";
+import { useFeatureFlag } from "@/hooks/use-feature-flag";
+import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { loginSchema, signUpSchema } from "@/lib/validations/auth";
 
 const configured = !!process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
@@ -23,10 +25,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const emailSignup = useFeatureFlag(FEATURE_FLAGS.EMAIL_SIGNUP);
 
   useEffect(() => {
     setHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (!emailSignup.loading && !emailSignup.enabled && mode === "signup") setMode("login");
+  }, [emailSignup.enabled, emailSignup.loading, mode]);
 
   const next = () => typeof window === "undefined" ? "/" : new URL(window.location.href).searchParams.get("next") ?? "/";
 
@@ -66,7 +73,7 @@ export default function LoginPage() {
     }
   }
 
-  if (!hydrated) return <LoginLoading />;
+  if (!hydrated || emailSignup.loading) return <LoginLoading />;
 
   return (
     <main className="auth-grid relative min-h-svh overflow-hidden bg-background p-3 sm:p-5">
@@ -95,17 +102,17 @@ export default function LoginPage() {
             <div className="mb-10 flex items-center gap-3 lg:hidden"><Image src="/favicon/apple-touch-icon.png" width={40} height={40} alt="" className="rounded-xl" /><div><p className="font-semibold">Spending Flows</p><p className="text-xs text-muted-foreground">Financial command center</p></div></div>
             <p className="text-xs font-medium uppercase tracking-[.2em] text-primary">Acesso seguro</p>
             <h2 className="font-display mt-3 text-4xl font-semibold tracking-[-.045em]">Organize seu fluxo.</h2>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">Entre ou crie sua conta para começar.</p>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">{emailSignup.enabled ? "Entre ou crie sua conta para começar." : "Entre na sua conta para continuar."}</p>
 
             <Tabs value={mode} onValueChange={setMode} className="mt-8">
-              <TabsList className="grid h-10 w-full grid-cols-2 bg-white/[0.045]">
+              <TabsList className={`grid h-10 w-full bg-white/[0.045] ${emailSignup.enabled ? "grid-cols-2" : "grid-cols-1"}`}>
                 <TabsTrigger value="login">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Criar conta</TabsTrigger>
+                {emailSignup.enabled && <TabsTrigger value="signup">Criar conta</TabsTrigger>}
               </TabsList>
               <TabsContent value="login" className="mt-6 space-y-4" />
-              <TabsContent value="signup" className="mt-6 space-y-4">
+              {emailSignup.enabled && <TabsContent value="signup" className="mt-6 space-y-4">
                 <Field label="Nome" icon={ShieldCheck}><Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Como podemos te chamar?" autoComplete="name" /></Field>
-              </TabsContent>
+              </TabsContent>}
             </Tabs>
 
             <div className="space-y-4">

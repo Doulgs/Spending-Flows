@@ -3,11 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronsUpDown, LogOut, PlusCircle, Settings } from "lucide-react";
+import { ChevronsUpDown, LogOut, PlusCircle } from "lucide-react";
 import { ANALYSIS_NAV_ITEMS, PRIMARY_NAV_ITEMS } from "@/components/layout/navigation";
 import { WorkspaceSwitcher } from "@/components/layout/workspace-switcher";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Sidebar,
   SidebarContent,
@@ -32,8 +33,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const router = useRouter();
   const openQuickAdd = useUIStore((state) => state.openQuickAdd);
-  const { displayName, avatarUrl, initials, user } = useCurrentUser();
-  const { canManage } = useWorkspacePermission();
+  const { displayName, avatarUrl, initials, user, loading: userLoading } = useCurrentUser();
+  const { canManage, loading: permissionLoading } = useWorkspacePermission();
 
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
@@ -52,7 +53,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        {canManage && <SidebarGroup>
+        {!permissionLoading && canManage && <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -69,12 +70,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarFooter className="border-t border-sidebar-border p-2">
         <SidebarMenu>
-          <SidebarMenuItem><SidebarMenuButton asChild isActive={pathname.startsWith("/settings")} tooltip="Configurações"><Link href="/settings"><Settings/><span>Configurações</span></Link></SidebarMenuButton></SidebarMenuItem>
           <SidebarMenuItem>
-            <DropdownMenu>
+            {userLoading ? <SidebarMenuButton size="lg" disabled><Skeleton className="size-8 rounded-lg" /><div className="grid flex-1 gap-1.5"><Skeleton className="h-3 w-24" /><Skeleton className="h-2.5 w-32" /></div></SidebarMenuButton> : <DropdownMenu>
               <DropdownMenuTrigger asChild><SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent"><Avatar className="size-8 rounded-lg"><AvatarImage src={avatarUrl}/><AvatarFallback className="rounded-lg bg-primary/10 text-xs text-primary">{initials}</AvatarFallback></Avatar><div className="grid flex-1 text-left text-xs leading-tight"><span className="truncate font-medium">{displayName}</span><span className="truncate text-[10px] text-muted-foreground">{user?.email}</span></div><ChevronsUpDown className="ml-auto"/></SidebarMenuButton></DropdownMenuTrigger>
               <DropdownMenuContent side="right" align="end" className="w-56"><DropdownMenuItem onClick={() => router.push("/settings")}>Configurações</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive" onClick={() => signOut()}><LogOut className="mr-2"/>Sair da conta</DropdownMenuItem></DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu>}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
@@ -84,5 +84,5 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 }
 
 function Navigation({ label, items, pathname }: { label: string; items: readonly Item[]; pathname: string }) {
-  return <SidebarGroup><SidebarGroupLabel>{label}</SidebarGroupLabel><SidebarGroupContent><SidebarMenu>{items.map((item) => { const Icon = item.icon; const active = pathname === item.href || pathname.startsWith(`${item.href}/`); return <SidebarMenuItem key={item.href}><SidebarMenuButton asChild isActive={active} tooltip={item.label}><Link href={item.href}><Icon/><span>{item.label}</span></Link></SidebarMenuButton></SidebarMenuItem>; })}</SidebarMenu></SidebarGroupContent></SidebarGroup>;
+  return <SidebarGroup><SidebarGroupLabel>{label}</SidebarGroupLabel><SidebarGroupContent><SidebarMenu>{items.map((item) => { const Icon = item.icon; const related = item.href === "/accounts" ? "/cards" : item.href === "/subscriptions" ? "/recurrences" : item.href === "/cash-flow" ? "/reports" : null; const active = pathname === item.href || pathname.startsWith(`${item.href}/`) || pathname === related; return <SidebarMenuItem key={item.href}><SidebarMenuButton asChild isActive={active} tooltip={item.label}><Link href={item.href}><Icon/><span>{item.label}</span></Link></SidebarMenuButton></SidebarMenuItem>; })}</SidebarMenu></SidebarGroupContent></SidebarGroup>;
 }

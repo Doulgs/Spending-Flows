@@ -8,8 +8,9 @@ import { ptBR } from "date-fns/locale";
 
 import { ChartAreaInteractive, type FinancialChartPoint } from "@/components/chart-area-interactive";
 import { CategoryDonutChart, type CategorySlice } from "@/components/dashboard/category-donut-chart";
+import { ActivityCharts } from "@/components/dashboard/activity-charts";
+import { CategoryIcon } from "@/components/categories/category-icon";
 import { SectionCards } from "@/components/section-cards";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -28,6 +29,7 @@ export default function DashboardPage() {
 
   const loading = accountsLoading || txLoading;
   const error = accountsError || txError;
+  const categoriesById = useMemo(() => new Map(categories.map((category) => [category.id, category])), [categories]);
 
   const totals = useMemo(() => {
     const income = transactions.filter((transaction) => transaction.type === "income").reduce((sum, transaction) => sum + Number(transaction.amount), 0);
@@ -55,14 +57,14 @@ export default function DashboardPage() {
   const categoryData: CategorySlice[] = useMemo(() => {
     const totalsByCategory = new Map<string, number>();
     transactions.filter((transaction) => transaction.type === "expense").forEach((transaction) => {
-      const category = categories.find((item) => item.id === transaction.category_id);
+      const category = transaction.category_id ? categoriesById.get(transaction.category_id) : undefined;
       const name = category?.name ?? "Sem categoria";
       totalsByCategory.set(name, (totalsByCategory.get(name) ?? 0) + Number(transaction.amount));
     });
     return Array.from(totalsByCategory.entries())
       .sort((left, right) => right[1] - left[1])
       .map(([name, value], index) => ({ name, value, color: PALETTE[index % PALETTE.length] }));
-  }, [transactions, categories]);
+  }, [transactions, categoriesById]);
 
   if (loading) {
     return (
@@ -99,6 +101,8 @@ export default function DashboardPage() {
 
       <ChartAreaInteractive data={cashFlowData} />
 
+      <ActivityCharts transactions={transactions} />
+
       <div className="grid gap-5 lg:grid-cols-3">
         <Card className="overflow-hidden lg:col-span-2">
           <CardHeader className="flex-row items-center justify-between space-y-0 border-b border-border-subtle">
@@ -118,7 +122,7 @@ export default function DashboardPage() {
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
                     <TableHead>Descrição</TableHead>
-                    <TableHead>Tipo</TableHead>
+                    <TableHead className="hidden sm:table-cell">Categoria</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
                   </TableRow>
@@ -126,13 +130,9 @@ export default function DashboardPage() {
                 <TableBody>
                   {recentTransactions.map((transaction) => (
                     <TableRow key={transaction.id}>
-                      <TableCell className="max-w-[220px] truncate font-medium">{transaction.description}</TableCell>
-                      <TableCell>
-                        <Badge variant={transaction.type === "income" ? "success" : transaction.type === "expense" ? "destructive" : "outline"} className="text-[10px]">
-                          {transaction.type === "income" ? "Receita" : transaction.type === "expense" ? "Despesa" : "Transferência"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-text-muted">{format(parseISO(transaction.date), "dd/MM/yyyy")}</TableCell>
+                      <TableCell className="max-w-[190px]"><p className="truncate font-medium">{transaction.description}</p><p className="mt-1 truncate text-[10px] text-text-muted">Lançado por {transaction.created_by_name ?? "Usuário"}</p></TableCell>
+                      <TableCell className="hidden sm:table-cell"><div className="flex items-center gap-2"><CategoryIcon name={transaction.category_id ? categoriesById.get(transaction.category_id)?.icon : undefined} className="size-3.5 text-primary"/><span className="max-w-28 truncate text-xs text-text-muted">{transaction.category_id ? categoriesById.get(transaction.category_id)?.name ?? "Sem categoria" : "Sem categoria"}</span></div></TableCell>
+                      <TableCell className="text-xs text-text-muted">{format(parseISO(transaction.date), "dd/MM")}</TableCell>
                       <TableCell className={transaction.type === "expense" ? "text-right font-medium tabular-nums text-destructive" : "text-right font-medium tabular-nums text-success"}>
                         {transaction.type === "expense" ? "−" : "+"}{formatCurrency(Number(transaction.amount))}
                       </TableCell>

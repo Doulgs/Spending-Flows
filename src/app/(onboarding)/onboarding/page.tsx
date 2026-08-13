@@ -5,11 +5,14 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Building2, Check, ChevronLeft, ChevronRight, CircleDollarSign, Landmark, LayoutGrid, Loader2, Sparkles, Wallet } from "lucide-react";
 import { AccentColorPicker } from "@/components/workspaces/accent-color-picker";
+import { PageLoading } from "@/components/ui/page-loading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
+import { useFeatureFlag } from "@/hooks/use-feature-flag";
+import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { applyAccentTheme, DEFAULT_ACCENT_COLOR, isValidAccentColor, normalizeAccentColor } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
@@ -31,9 +34,13 @@ export default function OnboardingPage() {
   const [workspace, setWorkspace] = useState({ name: "", type: "personal", currency: "BRL", accent_color: DEFAULT_ACCENT_COLOR });
   const [account, setAccount] = useState({ name: "Conta Principal", type: "checking", initial_balance: "0" });
   const [selectedCategories, setSelectedCategories] = useState<string[]>([...EXPENSE_CATEGORIES.slice(0, 5), INCOME_CATEGORIES[0]]);
+  const onboarding = useFeatureFlag(FEATURE_FLAGS.ONBOARDING);
   const step = STEPS[stepIndex];
 
   useEffect(() => { applyAccentTheme(document.documentElement, workspace.accent_color); }, [workspace.accent_color]);
+  useEffect(() => {
+    if (!onboarding.loading && !onboarding.enabled) router.replace("/");
+  }, [onboarding.enabled, onboarding.loading, router]);
   const next = () => { setError(null); if (step.id === "workspace" && workspace.name.trim().length < 2) return setError("Informe um nome com pelo menos 2 caracteres."); if (!isValidAccentColor(workspace.accent_color)) return setError("Informe uma cor hexadecimal válida."); setStepIndex((index) => Math.min(index + 1, STEPS.length - 1)); };
   const back = () => { setError(null); setStepIndex((index) => Math.max(index - 1, 0)); };
   const toggleCategory = (name: string) => setSelectedCategories((current) => current.includes(name) ? current.filter((item) => item !== name) : [...current, name]);
@@ -42,18 +49,29 @@ export default function OnboardingPage() {
     setLoading(true); setError(null);
     try {
       const supabase = createClient();
+      const { data: onboardingEnabled, error: flagError } = await supabase.rpc("is_feature_enabled", { flag_key: FEATURE_FLAGS.ONBOARDING });
+      if (flagError || !onboardingEnabled) throw new Error("O onboarding está temporariamente indisponível.");
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Sessão expirada. Faça login novamente.");
-      const { data: ws, error: wsError } = await supabase.from("workspaces").insert({ owner_id: user.id, name: workspace.name.trim() || "Meu Workspace", type: workspace.type, currency: workspace.currency, accent_color: normalizeAccentColor(workspace.accent_color) }).select().single();
-      if (wsError) throw wsError;
-      const { error: memberError } = await supabase.from("workspace_members").insert({ workspace_id: ws.id, user_id: user.id, role: "owner" });
-      if (memberError) throw memberError;
-      const { error: accountError } = await supabase.from("accounts").insert({ workspace_id: ws.id, name: account.name.trim() || "Conta Principal", type: account.type, initial_balance: Number(account.initial_balance) || 0, current_balance: Number(account.initial_balance) || 0, currency: workspace.currency });
-      if (accountError) throw accountError;
-      router.push("/dashboard"); router.refresh();
+      const { data: workspaceId, error: onboardingError } = await supabase.rpc("complete_onboarding", {
+        workspace_name: workspace.name.trim() || "Meu Workspace",
+        workspace_type: workspace.type,
+        workspace_currency: workspace.currency,
+        workspace_accent_color: normalizeAccentColor(workspace.accent_color),
+        account_name: account.name.trim() || "Conta Principal",
+        account_type: account.type,
+        initial_balance: Number(account.initial_balance) || 0,
+        expense_categories: selectedCategories.filter((name) => EXPENSE_CATEGORIES.includes(name)),
+        income_categories: selectedCategories.filter((name) => INCOME_CATEGORIES.includes(name)),
+      });
+      if (onboardingError) throw onboardingError;
+      localStorage.setItem("spending-flows-invited-workspace", workspaceId);
+      window.location.replace("/dashboard?onboarding=complete");
     } catch (err) { setError(err instanceof Error ? err.message : "Não foi possível concluir o onboarding."); }
     finally { setLoading(false); }
   };
+
+  if (onboarding.loading || !onboarding.enabled) return <PageLoading label="Preparando seu workspace..." />;
 
   return <main className="min-h-screen bg-background-secondary p-3 sm:p-5">
     <div className="mx-auto grid min-h-[calc(100vh-24px)] max-w-[1440px] overflow-hidden rounded-[28px] border border-border-subtle bg-background shadow-2xl shadow-black/40 sm:min-h-[calc(100vh-40px)] lg:grid-cols-[350px_1fr]">

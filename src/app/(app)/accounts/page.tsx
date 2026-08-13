@@ -12,6 +12,7 @@ import { useWorkspaceTable } from "@/hooks/use-workspace-table";
 import { createClient } from "@/lib/supabase/client";
 import { formatCurrency } from "@/lib/utils";
 import type { Account } from "@/types";
+import { SectionSwitcher, WALLET_SECTIONS } from "@/components/layout/section-switcher";
 
 const ACCOUNT_ICONS: Record<string, typeof Wallet> = {
   checking: Landmark,
@@ -48,6 +49,7 @@ export default function AccountsPage() {
 
   return (
     <div className="space-y-6">
+      <SectionSwitcher items={WALLET_SECTIONS} />
       <div className="flex flex-wrap justify-end gap-3">
         <Button variant="outline" onClick={() => setTransferOpen(true)} disabled={accounts.length < 2}>
           <ArrowLeftRight className="h-4 w-4" /> Transferir

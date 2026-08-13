@@ -22,6 +22,8 @@ export async function signInWithPassword(email: string, password: string) {
 
 export async function signUpWithPassword(name: string, email: string, password: string) {
   const supabase = createClient();
+  const { data: signupEnabled, error: flagError } = await supabase.rpc("is_feature_enabled", { flag_key: "email_signup" });
+  if (flagError || !signupEnabled) throw new Error("A criação de contas por e-mail está temporariamente indisponível.");
   const { data, error } = await supabase.auth.signUp({
     email,
     password,

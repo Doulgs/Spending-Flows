@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function RootPage() {
@@ -16,5 +17,14 @@ export default async function RootPage() {
     .select("id")
     .limit(1);
 
-  redirect(workspaces?.length ? "/dashboard" : "/onboarding");
+  if (workspaces?.length) redirect("/dashboard");
+
+  const { data: onboardingEnabled, error: flagError } = await supabase.rpc("is_feature_enabled", {
+    flag_key: FEATURE_FLAGS.ONBOARDING,
+  });
+  if (flagError || onboardingEnabled) redirect("/onboarding");
+
+  const { error: workspaceError } = await supabase.rpc("ensure_default_workspace");
+  if (workspaceError) redirect("/onboarding");
+  redirect("/dashboard");
 }

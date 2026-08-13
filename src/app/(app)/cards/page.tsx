@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatCurrency } from "@/lib/utils";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import type { Card as CreditCard, Transaction } from "@/types";
+import { SectionSwitcher, WALLET_SECTIONS } from "@/components/layout/section-switcher";
 
 /**
  * Computes the [start, end) bounds of the current open invoice cycle for a
@@ -99,6 +100,7 @@ export default function CardsPage() {
 
   return (
     <div className="space-y-6">
+      <SectionSwitcher items={WALLET_SECTIONS} />
       <div className="flex justify-end">
         <Button
           onClick={() => {

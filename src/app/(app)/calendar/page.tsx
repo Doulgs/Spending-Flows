@@ -35,6 +35,7 @@ export default function CalendarPage() {
 
   const transactionsByDay = (day: Date) =>
     transactions.filter((t) => isSameDay(parseISO(t.date), day));
+  const daysWithTransactions = days.filter((day) => isSameMonth(day, currentMonth) && transactionsByDay(day).length > 0);
 
   return (
     <div className="space-y-6">
@@ -66,7 +67,8 @@ export default function CalendarPage() {
             <CardTitle>Eventos financeiros do mês</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-border bg-border text-xs">
+            <div className="space-y-2 sm:hidden">{daysWithTransactions.length === 0 ? <p className="py-8 text-center text-sm text-text-muted">Nenhum evento neste mês.</p> : daysWithTransactions.map((day) => <div key={day.toISOString()} className="rounded-xl border border-border bg-surface p-3"><p className="mb-2 text-xs font-semibold capitalize text-text-secondary">{format(day, "EEEE, dd", { locale: ptBR })}</p><div className="space-y-2">{transactionsByDay(day).map((transaction) => <div key={transaction.id} className="flex items-center justify-between gap-3 rounded-lg bg-surface-elevated px-3 py-2"><span className="min-w-0 truncate text-xs">{transaction.description}</span><span className={transaction.type === "income" ? "shrink-0 text-xs font-semibold text-success" : "shrink-0 text-xs font-semibold text-destructive"}>{transaction.type === "expense" ? "−" : "+"}{formatCurrency(Number(transaction.amount))}</span></div>)}</div></div>)}</div>
+            <div className="hidden grid-cols-7 gap-px overflow-hidden rounded-lg border border-border bg-border text-xs sm:grid">
               {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((d) => (
                 <div key={d} className="bg-surface-elevated p-2 text-center font-medium text-text-muted">
                   {d}

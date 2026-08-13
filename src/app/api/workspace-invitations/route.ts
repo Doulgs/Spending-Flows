@@ -35,9 +35,10 @@ export async function POST(request: Request) {
   }
 
   const origin = new URL(request.url).origin;
-  // Invite and magic-link flows are accepted in a different browser than the
-  // manager's, so they use Supabase's implicit hash session directly on this page.
-  const redirectTo = `${origin}/invite/${invitation.id}`;
+  const nextPath = `/invite/${invitation.id}`;
+  // Supabase returns a one-time code. The callback exchanges it for a session
+  // before sending the invited person to the acceptance screen.
+  const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
   let emailError: Error | null = null;
   const admin = createAdminClient();
 

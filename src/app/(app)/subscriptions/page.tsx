@@ -12,6 +12,7 @@ import { useWorkspaceTable } from "@/hooks/use-workspace-table";
 import { createClient } from "@/lib/supabase/client";
 import { formatCurrency } from "@/lib/utils";
 import type { Card as CreditCard, Subscription } from "@/types";
+import { RECURRING_SECTIONS, SectionSwitcher } from "@/components/layout/section-switcher";
 
 export default function SubscriptionsPage() {
   const { data: subscriptions, loading, error, refresh } = useWorkspaceTable<Subscription>("subscriptions", {
@@ -43,6 +44,7 @@ export default function SubscriptionsPage() {
 
   return (
     <div className="space-y-6">
+      <SectionSwitcher items={RECURRING_SECTIONS} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-text-muted">
           Total mensal: <span className="font-semibold text-text-primary">{formatCurrency(totalMonthly)}</span>

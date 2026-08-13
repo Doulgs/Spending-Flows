@@ -13,8 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { signOut } from "@/features/auth/actions";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { createClient } from "@/lib/supabase/client";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { AccentColorPicker } from "@/components/workspaces/accent-color-picker";
@@ -27,21 +29,15 @@ export default function SettingsPage() {
   const [name, setName] = useState(currentWorkspace?.name ?? "");
   const [currency, setCurrency] = useState(currentWorkspace?.currency ?? "BRL");
   const [accentColor, setAccentColor] = useState(currentWorkspace?.accent_color ?? "#8B5CF6");
-  const [email, setEmail] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user, loading: userLoading } = useCurrentUser();
   const [saving, setSaving] = useState(false);
-  const canEditWorkspace = Boolean(currentWorkspace && currentWorkspace.owner_id === userId);
+  const canEditWorkspace = Boolean(currentWorkspace && currentWorkspace.owner_id === user?.id);
 
   useEffect(() => {
     setName(currentWorkspace?.name ?? "");
     setCurrency(currentWorkspace?.currency ?? "BRL");
     setAccentColor(currentWorkspace?.accent_color ?? "#8B5CF6");
   }, [currentWorkspace]);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => { setEmail(data.user?.email ?? null); setUserId(data.user?.id ?? null); });
-  }, []);
 
   const handleSave = async () => {
     if (!currentWorkspaceId || !isValidAccentColor(accentColor)) return;
@@ -68,6 +64,8 @@ export default function SettingsPage() {
     }
   };
 
+  if (userLoading) return <div className="max-w-3xl space-y-6"><Skeleton className="h-64 rounded-xl" /><Skeleton className="h-[480px] rounded-xl" /></div>;
+
   return (
     <div className="max-w-3xl space-y-6">
       <Card>
@@ -79,7 +77,7 @@ export default function SettingsPage() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label>E-mail</Label>
-            <Input value={email ?? "—"} disabled />
+            <Input value={user?.email ?? "—"} disabled />
           </div>
           <Separator />
           <Button variant="outline" onClick={() => signOut()}>
@@ -114,7 +112,7 @@ export default function SettingsPage() {
           </div>
           <Separator />
           <AccentColorPicker value={accentColor} onChange={setAccentColor} disabled={!canEditWorkspace} />
-          {currentWorkspace && currentWorkspace.owner_id !== userId && <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-elevated p-3 text-xs text-text-muted"><LockKeyhole className="h-4 w-4" /> Somente o proprietário pode alterar a identidade visual deste workspace.</div>}
+          {currentWorkspace && currentWorkspace.owner_id !== user?.id && <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-elevated p-3 text-xs text-text-muted"><LockKeyhole className="h-4 w-4" /> Somente o proprietário pode alterar a identidade visual deste workspace.</div>}
           <Button onClick={handleSave} disabled={saving || !canEditWorkspace || !isValidAccentColor(accentColor)}>
             Salvar alterações
           </Button>

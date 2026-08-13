@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowRight, CheckCircle2, KeyRound, Loader2, UsersRound } from "lucide-react";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageLoading } from "@/components/ui/page-loading";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AcceptInvitationPage() {
@@ -17,6 +18,18 @@ export default function AcceptInvitationPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [accepted, setAccepted] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    createClient().auth.getUser().then(({ data }) => {
+      if (!active) return;
+      setAuthenticated(Boolean(data.user));
+      setAuthLoading(false);
+    });
+    return () => { active = false; };
+  }, []);
 
   async function accept() {
     setLoading(true);
@@ -46,6 +59,8 @@ export default function AcceptInvitationPage() {
     }
   }
 
+  if (authLoading) return <PageLoading label="Validando seu convite..." />;
+
   return (
     <main className="relative flex min-h-svh items-center justify-center overflow-hidden bg-background p-4">
       <div className="pointer-events-none absolute inset-0 [background:radial-gradient(circle_at_50%_0%,hsl(var(--primary)/.18),transparent_34%)]" />
@@ -58,16 +73,17 @@ export default function AcceptInvitationPage() {
           <CardDescription className="max-w-sm leading-6">Aceite para adicionar o workspace compartilhado à sua conta. Se esta for sua primeira entrada, também criaremos seu workspace pessoal.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5 px-8 pb-9">
-          <div className="space-y-2 rounded-xl border border-border bg-background/55 p-4">
+          {authenticated && <div className="space-y-2 rounded-xl border border-border bg-background/55 p-4">
             <Label htmlFor="invite-password" className="flex items-center gap-2 text-xs"><KeyRound className="size-3.5 text-primary" />Senha para próximos acessos <span className="text-muted-foreground">(opcional)</span></Label>
             <Input id="invite-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Mínimo de 8 caracteres" autoComplete="new-password" />
             <p className="text-[11px] leading-5 text-muted-foreground">Se você já possui senha, deixe este campo vazio.</p>
-          </div>
+          </div>}
+          {!authenticated && <div className="rounded-xl border border-primary/20 bg-primary/10 p-4 text-xs leading-5 text-muted-foreground">Entre com o mesmo e-mail que recebeu o convite para concluir o acesso.</div>}
           {error && <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">{error}</div>}
           {accepted ? (
             <div className="flex h-11 items-center justify-center gap-2 rounded-lg border border-emerald-500/25 bg-emerald-500/10 text-sm font-medium text-emerald-300"><CheckCircle2 className="size-4" />Convite aceito. Abrindo workspace...</div>
           ) : (
-            <Button className="h-11 w-full justify-between" disabled={loading} onClick={accept}>{loading ? <Loader2 className="animate-spin" /> : "Aceitar e entrar"}<ArrowRight /></Button>
+            <Button className="h-11 w-full justify-between" disabled={loading} onClick={accept}>{loading ? <Loader2 className="animate-spin" /> : authenticated ? "Aceitar e entrar" : "Entrar para aceitar"}<ArrowRight /></Button>
           )}
         </CardContent>
       </Card>
@@ -80,5 +96,7 @@ function translateError(message: string) {
   if (message.includes("invitation_email_mismatch")) return "Este convite pertence a outro endereço de e-mail.";
   if (message.includes("invitation_not_pending")) return "Este convite já foi utilizado ou revogado.";
   if (message.includes("invitation_not_found")) return "Convite não encontrado.";
+  if (message.includes("authentication_required")) return "Entre na sua conta para aceitar este convite.";
+  if (message.includes("invitation_email_unavailable")) return "Não foi possível confirmar o e-mail desta conta.";
   return message;
 }

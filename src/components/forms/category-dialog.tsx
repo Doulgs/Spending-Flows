@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { CategoryIconPicker } from "@/components/categories/category-icon-picker";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -53,6 +54,7 @@ export function CategoryDialog({ open, onOpenChange, category, defaultType = "ex
       name: category?.name ?? "",
       type: category?.type ?? defaultType,
       color: category?.color ?? "#A179FA",
+      icon: category?.icon ?? "Tag",
     },
   });
 
@@ -62,6 +64,7 @@ export function CategoryDialog({ open, onOpenChange, category, defaultType = "ex
       name: category?.name ?? "",
       type: category?.type ?? defaultType,
       color: category?.color ?? "#A179FA",
+      icon: category?.icon ?? "Tag",
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, category, defaultType]);
@@ -77,7 +80,7 @@ export function CategoryDialog({ open, onOpenChange, category, defaultType = "ex
       if (category?.id) {
         const { error } = await supabase
           .from("categories")
-          .update({ name: values.name, type: values.type, color: values.color })
+          .update({ name: values.name, type: values.type, color: values.color, icon: values.icon })
           .eq("id", category.id);
         if (error) throw error;
       } else {
@@ -86,6 +89,7 @@ export function CategoryDialog({ open, onOpenChange, category, defaultType = "ex
           name: values.name,
           type: values.type,
           color: values.color,
+          icon: values.icon,
         });
         if (error) throw error;
       }
@@ -105,12 +109,23 @@ export function CategoryDialog({ open, onOpenChange, category, defaultType = "ex
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="w-[calc(100%-1rem)] rounded-2xl sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{category?.id ? "Editar categoria" : "Nova categoria"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="icon"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ícone</FormLabel>
+                  <FormControl><CategoryIconPicker value={field.value} onChange={field.onChange} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="name"

@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useWorkspaceTable } from "@/hooks/use-workspace-table";
 import { formatCurrency } from "@/lib/utils";
 import type { Transaction } from "@/types";
+import { ANALYTICS_SECTIONS, SectionSwitcher } from "@/components/layout/section-switcher";
 
 export default function CashFlowPage() {
   const { data: transactions, loading, error } = useWorkspaceTable<Transaction>("transactions");
@@ -29,6 +30,7 @@ export default function CashFlowPage() {
 
   return (
     <div className="space-y-6">
+      <SectionSwitcher items={ANALYTICS_SECTIONS} />
       {error && (
         <div className="rounded-md border border-warning-border bg-warning-subtle p-4 text-sm text-warning">
           Não foi possível carregar o fluxo de caixa ({error}).
@@ -36,13 +38,13 @@ export default function CashFlowPage() {
       )}
 
       {loading ? (
-        <Skeleton className="h-[420px] w-full" />
+        <Skeleton className="h-[320px] w-full sm:h-[420px]" />
       ) : (
         <Card>
           <CardHeader>
             <CardTitle>Fluxo de Caixa (12 meses)</CardTitle>
           </CardHeader>
-          <CardContent className="h-[420px]">
+          <CardContent className="h-[320px] px-2 sm:h-[420px] sm:px-6">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
