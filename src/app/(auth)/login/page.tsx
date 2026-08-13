@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowRight, Check, Eye, EyeOff, Loader2, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { loginSchema, signUpSchema } from "@/lib/validations/auth";
 const configured = !!process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
 
 export default function LoginPage() {
+  const [hydrated, setHydrated] = useState(false);
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -22,6 +23,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   const next = () => typeof window === "undefined" ? "/" : new URL(window.location.href).searchParams.get("next") ?? "/";
 
@@ -60,6 +65,8 @@ export default function LoginPage() {
       setLoading(false);
     }
   }
+
+  if (!hydrated) return <LoginLoading />;
 
   return (
     <main className="auth-grid relative min-h-svh overflow-hidden bg-background p-3 sm:p-5">
@@ -117,6 +124,18 @@ export default function LoginPage() {
             <p className="mt-7 text-center text-[11px] leading-5 text-muted-foreground">Ao continuar, você concorda com os Termos de Uso e a Política de Privacidade.</p>
           </div>
         </section>
+      </div>
+    </main>
+  );
+}
+
+function LoginLoading() {
+  return (
+    <main className="flex min-h-svh items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-4" role="status" aria-label="Carregando autenticação">
+        <Image src="/favicon/apple-touch-icon.png" width={48} height={48} alt="" className="rounded-xl" priority />
+        <Loader2 className="size-5 animate-spin text-primary" />
+        <span className="sr-only">Carregando autenticação</span>
       </div>
     </main>
   );
